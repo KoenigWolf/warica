@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { useWarikanStore } from "../useWarikanStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

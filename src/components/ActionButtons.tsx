@@ -2,8 +2,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { useWarikanStore } from "../app/useWarikanStore";
 import { useCommonNavigation } from "../lib/shared-logic";
-import { cn, colors, typography } from "@/lib/design-system";
-import { ROUTES } from "../lib/routes";
+import { cn, colors } from "@/lib/design-system";
 
 /**
  * ハイブランド アクションボタン v3.0
