@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import { cn, typography, motion, advancedSpacing } from "@/lib/design-system";
 
 /**
@@ -7,6 +9,7 @@ import { cn, typography, motion, advancedSpacing } from "@/lib/design-system";
  * - グラデーションテキスト・アニメーション効果
  * - 科学的余白システム（黄金比ベース）
  * - セマンティックHTML・アクセシビリティ完全対応
+ * - SSR対応・ハイドレーションエラー対策
  */
 
 interface SectionTitleProps {
@@ -28,6 +31,13 @@ export const SectionTitle: React.FC<SectionTitleProps> = ({
   className,
   id,
 }) => {
+  // クライアント専用状態
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   // HTML要素マッピング
   const Element = level === 'hero' ? 'h1' : level;
 
@@ -63,9 +73,9 @@ export const SectionTitle: React.FC<SectionTitleProps> = ({
         // 配置・余白
         alignmentClass,
         spacingClass,
-        // アニメーション効果
-        motion.entrance.slideDown,
-        motion.transition.smooth,
+        // アニメーション効果（クライアント専用）
+        isClient && motion.entrance.slideDown,
+        isClient && motion.transition.smooth,
         // アクセシビリティ
         'focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:ring-offset-4',
         // レスポンシブ調整
@@ -73,8 +83,8 @@ export const SectionTitle: React.FC<SectionTitleProps> = ({
         // カスタムクラス
         className
       )}
-      // アクセシビリティ属性
-      tabIndex={0}
+      // アクセシビリティ属性（クライアント専用）
+      {...(isClient ? { tabIndex: 0 } : {})}
       role="heading"
       aria-level={getAriaLevel(level)}
     >
@@ -82,8 +92,10 @@ export const SectionTitle: React.FC<SectionTitleProps> = ({
       {variant === 'gradient' && (
         <span className="relative">
           {children}
-          {/* 光沢効果オーバーレイ */}
-          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse opacity-30" />
+          {/* 光沢効果オーバーレイ（クライアント専用） */}
+          {isClient && (
+            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse opacity-30" />
+          )}
         </span>
       )}
       

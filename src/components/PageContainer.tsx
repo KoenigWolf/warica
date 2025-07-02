@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn, modernComponents, motion, typography } from "@/lib/design-system";
 
@@ -8,6 +10,7 @@ import { cn, modernComponents, motion, typography } from "@/lib/design-system";
  * - 黄金比ベースレスポンシブレイアウト
  * - プレミアムタイポグラフィ統合
  * - アクセシビリティ・パフォーマンス最適化
+ * - SSR対応・ハイドレーションエラー対策
  */
 
 interface PageContainerProps {
@@ -25,6 +28,13 @@ export const PageContainer: React.FC<PageContainerProps> = ({
   title,
   subtitle
 }) => {
+  // クライアント専用状態
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   // バリアント別レイアウト定義（黄金比ベース）
   const variantStyles = {
     narrow: 'max-w-md sm:max-w-lg',                    // モバイル特化
@@ -36,15 +46,15 @@ export const PageContainer: React.FC<PageContainerProps> = ({
   return (
     <div className={cn(
       modernComponents.pageContainer.wrapper,
-      motion.entrance.fadeIn,
+      isClient && motion.entrance.fadeIn,
       className
     )}>
       {/* メインコンテナ（Glass Morphism） */}
       <Card className={cn(
         modernComponents.pageContainer.card,
         variantStyles,
-        motion.entrance.slideUp,
-        motion.interaction.hover
+        isClient && motion.entrance.slideUp,
+        isClient && motion.interaction.hover
       )}>
         <CardContent className={cn(
           modernComponents.pageContainer.content,
@@ -55,7 +65,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
           {(title || subtitle) && (
             <header className={cn(
               'text-center space-y-2',
-              motion.entrance.slideDown
+              isClient && motion.entrance.slideDown
             )}>
               {title && (
                 <h1 className={cn(
@@ -79,7 +89,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
           {/* メインコンテンツエリア */}
           <main className={cn(
             'relative',
-            motion.entrance.zoom,
+            isClient && motion.entrance.zoom,
             // グラデーションオーバーレイ（プレミアム）
             variant === 'premium' && 'before:absolute before:inset-0 before:bg-gradient-to-r before:from-blue-50/20 before:to-indigo-50/20 before:rounded-xl before:-z-10'
           )}>
@@ -87,7 +97,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
           </main>
 
           {/* 装飾的要素（プレミアム限定） */}
-          {variant === 'premium' && (
+          {variant === 'premium' && isClient && (
             <div className="absolute inset-0 pointer-events-none">
               {/* 装飾的光沢効果 */}
               <div className="absolute top-0 left-1/4 w-32 h-32 bg-gradient-to-r from-blue-400/10 to-indigo-400/10 rounded-full blur-3xl" />
@@ -98,10 +108,12 @@ export const PageContainer: React.FC<PageContainerProps> = ({
       </Card>
 
       {/* フローティングアクセント（デザイン装飾） */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-blue-400/5 to-indigo-400/5 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-violet-400/5 to-purple-400/5 rounded-full blur-3xl" />
-      </div>
+      {isClient && (
+        <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-blue-400/5 to-indigo-400/5 rounded-full blur-3xl" />
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-violet-400/5 to-purple-400/5 rounded-full blur-3xl" />
+        </div>
+      )}
     </div>
   );
 }; 
