@@ -260,14 +260,7 @@ const ResultPage: React.FC = () => {
             onEditPayment={handleEditPayment}
             onRemovePayment={handleRemovePayment}
             compact={false}
-            emptyMessage={
-              <div className="text-center py-8">
-                <div className="text-4xl mb-3">📝</div>
-                <p className={cn(typography.body.base, 'text-gray-500')}>
-                  支払い履歴はありません
-                </p>
-              </div>
-            }
+            emptyMessage="支払い履歴はありません"
           />
         </div>
       </section>
@@ -281,7 +274,7 @@ const ResultPage: React.FC = () => {
           <Button
             onClick={() => navigation.goToPayments()}
             variant="secondary"
-            size="lg"
+            
             className={cn(motion.interaction.hover)}
           >
             <span className="flex items-center gap-2">
@@ -295,7 +288,7 @@ const ResultPage: React.FC = () => {
           <Button
             onClick={handleReset}
             variant="destructive"
-            size="lg"
+            
             className={cn(motion.interaction.hover)}
           >
             <span className="flex items-center gap-2">

@@ -64,7 +64,7 @@ export const PaymentItem: React.FC<PaymentItemProps> = ({
             {onEdit && (
               <Button
                 variant="ghost"
-                size="sm"
+                
                 onClick={() => onEdit(payment)}
                 className="text-xs px-2 py-1 h-auto"
                 aria-label={`${payerName}の支払いを編集`}
@@ -75,7 +75,7 @@ export const PaymentItem: React.FC<PaymentItemProps> = ({
             {onRemove && (
               <Button
                 variant="ghost"
-                size="sm"
+                
                 onClick={() => onRemove(payment.id)}
                 className="text-xs text-red-500 px-2 py-1 h-auto hover:text-red-700"
                 aria-label={`${payerName}の支払いを削除`}
@@ -138,7 +138,7 @@ export const PaymentItem: React.FC<PaymentItemProps> = ({
             {onEdit && (
               <Button
                 variant="outline"
-                size="sm"
+                
                 onClick={() => onEdit(payment)}
                 className="text-xs px-3 py-1"
                 aria-label={`${payerName}の支払いを編集`}
@@ -149,7 +149,7 @@ export const PaymentItem: React.FC<PaymentItemProps> = ({
             {onRemove && (
               <Button
                 variant="ghost"
-                size="sm"
+                
                 onClick={() => onRemove(payment.id)}
                 className="text-xs text-red-500 px-3 py-1 hover:text-red-700 hover:bg-red-50"
                 aria-label={`${payerName}の支払いを削除`}

@@ -35,7 +35,7 @@ const inputVariants = cva(
         ),
       },
       
-      size: {
+      inputSize: {
         sm: "h-9 px-3 py-2 text-sm",
         default: "h-11 px-4 py-3 text-base", 
         lg: "h-12 px-5 py-3 text-lg",
@@ -53,7 +53,7 @@ const inputVariants = cva(
     },
     defaultVariants: {
       variant: "default",
-      size: "default",
+      inputSize: "default",
       rounded: "lg",
     },
   }
@@ -76,7 +76,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     className, 
     type = "text",
     variant,
-    size,
+    inputSize,
     rounded,
     label,
     helperText,
@@ -127,12 +127,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <input
             type={type}
             className={cn(
-              inputVariants({ variant: currentVariant, size, rounded }),
+              inputVariants({ variant: currentVariant, inputSize, rounded }),
               // アイコン用パディング調整
-              leftIcon && "pl-10",
-              rightIcon && "pr-10",
+              ...(leftIcon ? ["pl-10"] : []),
+              ...(rightIcon ? ["pr-10"] : []),
               // フローティングラベル用調整
-              floating && "placeholder-transparent",
+              ...(floating ? ["placeholder-transparent"] : []),
               // カスタムアニメーション
               motion.transition.normal,
               className
@@ -170,7 +170,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 ? isError ? "text-red-600" : "text-blue-600"
                 : isError ? "text-red-600" : "text-gray-400",
               // アイコン用オフセット
-              leftIcon && "left-10"
+              ...(leftIcon ? ["left-10"] : [])
             )}>
             {label}
           </label>

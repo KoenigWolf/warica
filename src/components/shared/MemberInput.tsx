@@ -142,7 +142,7 @@ export const MemberInput: React.FC<MemberInputProps> = ({
                     />
                     <Button
                       variant="secondary"
-                      size="sm"
+                      
                       onClick={handleEditSave}
                       disabled={!editName.trim() || disabled}
                       type="button"
@@ -153,7 +153,7 @@ export const MemberInput: React.FC<MemberInputProps> = ({
                     </Button>
                     <Button
                       variant="ghost"
-                      size="sm"
+                      
                       onClick={handleEditCancel}
                       disabled={disabled}
                       type="button"
@@ -171,7 +171,7 @@ export const MemberInput: React.FC<MemberInputProps> = ({
                     </span>
                     <Button
                       variant="ghost"
-                      size="sm"
+                      
                       onClick={() => handleEditStart(member)}
                       disabled={disabled}
                       type="button"
@@ -182,7 +182,7 @@ export const MemberInput: React.FC<MemberInputProps> = ({
                     </Button>
                     <Button
                       variant="ghost"
-                      size="sm"
+                      
                       onClick={() => onRemoveMember(member.id)}
                       disabled={disabled}
                       type="button"

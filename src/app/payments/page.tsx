@@ -12,6 +12,7 @@ import { ActionButtons } from "@/components/ActionButtons";
 import { PaymentList } from "@/components/shared/PaymentItem";
 import { usePaymentFormLogic, useCommonNavigation } from "../../lib/shared-logic";
 import { cn, typography, advancedSpacing, motion, getModernCardClasses } from "@/lib/design-system";
+import type { MemberId } from "@/lib/types";
 
 /**
  * 世界最高水準支払いページ v2.0
@@ -46,7 +47,7 @@ const PaymentsPage: React.FC = () => {
   // payee個別選択トグル
   const handlePayeeToggle = (id: string) => {
     setSelectedPayeeIds(prev =>
-      prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id]
+      prev.includes(id as MemberId) ? prev.filter(pid => pid !== id) : [...prev, id as MemberId]
     );
   };
 
@@ -216,10 +217,8 @@ const PaymentsPage: React.FC = () => {
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="金額"
-                  size="lg"
                   floating
                   label="金額"
-                  leftIcon={<span className="text-lg">💰</span>}
                 />
               </div>
               <div className="sm:col-span-2">
@@ -227,10 +226,8 @@ const PaymentsPage: React.FC = () => {
                   value={memo}
                   onChange={(e) => setMemo(e.target.value)}
                   placeholder="メモ (例: ランチ代、タクシー代)"
-                  size="lg"
                   floating
                   label="メモ (任意)"
-                  leftIcon={<span className="text-lg">📝</span>}
                 />
               </div>
             </div>
@@ -240,7 +237,7 @@ const PaymentsPage: React.FC = () => {
               onClick={handleAdd}
               disabled={!canAdd}
               variant={canAdd ? "success" : "secondary"}
-              size="lg"
+              
               fullWidth
               className={cn(motion.interaction.hover)}
             >
@@ -289,17 +286,7 @@ const PaymentsPage: React.FC = () => {
             members={members}
             onRemovePayment={removePayment}
             compact={true}
-            emptyMessage={
-              <div className="text-center py-8">
-                <div className="text-4xl mb-3">📋</div>
-                <p className={cn(typography.body.base, 'text-gray-500 mb-2')}>
-                  まだ支払いが登録されていません
-                </p>
-                <p className={cn(typography.body.small, 'text-gray-400')}>
-                  上のフォームから支払いを追加しましょう
-                </p>
-              </div>
-            }
+            emptyMessage="まだ支払いが登録されていません。上のフォームから支払いを追加しましょう。"
           />
         </div>
       </section>
@@ -313,7 +300,7 @@ const PaymentsPage: React.FC = () => {
           onClick={navigation.goToResults}
           disabled={payments.length === 0}
           variant={payments.length > 0 ? "premium" : "secondary"}
-          size="xl"
+          
           fullWidth
           className={cn(
             motion.entrance.zoom,

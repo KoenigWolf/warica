@@ -137,7 +137,6 @@ const PremiumMemberInput: React.FC<{
             onChange={(e) => setNewName(e.target.value)}
             placeholder="メンバー名を入力"
             className="flex-1"
-            size="lg"
             onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
           />
           <Button 
@@ -182,7 +181,6 @@ const PremiumMemberInput: React.FC<{
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   className="flex-1"
-                  size="sm"
                   autoFocus
                 />
                 <div className="flex gap-2">
@@ -305,7 +303,6 @@ export default function HomePage() {
           value={eventName}
           onChange={handleEventNameChange}
           placeholder="例: 新年会 2024、温泉旅行、飲み会"
-          size="lg"
           floating
           label="イベント名"
           helperText="後から変更できます"
