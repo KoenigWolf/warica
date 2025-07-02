@@ -9,7 +9,7 @@ import { PageContainer } from "@/components/PageContainer";
 import { BoldTitle } from "@/components/SectionTitle";
 import { ActionButtons } from "@/components/ActionButtons";
 import { PaymentList } from "@/components/shared/PaymentItem";
-
+import { useCommonNavigation } from "../../lib/shared-logic";
 import { cn, typography } from "@/lib/design-system";
 import type { MemberId } from "@/lib/types";
 
@@ -27,7 +27,8 @@ const PaymentsPage: React.FC = () => {
     removePayment,
   } = useWarikanStore();
 
-
+  // ナビゲーション
+  const navigation = useCommonNavigation();
 
   // 入力値（ローカル状態）
   const [payerId, setPayerId] = useState(members[0]?.id || "");
@@ -46,6 +47,11 @@ const PaymentsPage: React.FC = () => {
     setMemo("");
   }, [payerId, amount, memo, addPayment]);
 
+  // 結果ページへの進行
+  const handleGoToResults = useCallback(() => {
+    navigation.goToResults();
+  }, [navigation]);
+
   // 追加ボタンの有効性チェック
   const canAdd = !!(
     payerId &&
@@ -54,8 +60,23 @@ const PaymentsPage: React.FC = () => {
     Number(amount) > 0
   );
 
+  // 結果ページに進行可能かチェック
+  const canProceedToResults = payments.length > 0;
+
   return (
     <PageContainer>
+      {/* トップに戻るボタン */}
+      <div className="mb-4">
+        <Button
+          onClick={navigation.goHome}
+          variant="ghost"
+          size="sm"
+          className="text-gray-600 hover:text-gray-800"
+        >
+          ← ホームに戻る
+        </Button>
+      </div>
+
       {/* タイトルセクション */}
       <section className="bg-white/70 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/20 shadow-lg mb-6 sm:mb-8">
         <BoldTitle>
@@ -68,11 +89,25 @@ const PaymentsPage: React.FC = () => {
 
       {/* 支払い一覧 */}
       <section className="bg-white/70 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/20 shadow-lg mb-6 sm:mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className={cn(typography.heading.h3, 'text-gray-800')}>
+            📝 登録済み支払い
+          </h3>
+          <span className={cn(
+            'px-3 py-1 text-sm sm:text-base font-medium rounded-full',
+            payments.length > 0 
+              ? 'bg-emerald-100 text-emerald-700'
+              : 'bg-gray-100 text-gray-500'
+          )}>
+            {payments.length}件
+          </span>
+        </div>
+        
         <PaymentList
           payments={payments}
           members={members}
           onRemovePayment={removePayment}
-          emptyMessage="まだ支払いが登録されていません。上のフォームから支払いを追加しましょう。"
+          emptyMessage="まだ支払いが登録されていません。下のフォームから支払いを追加しましょう。"
         />
       </section>
 
@@ -147,6 +182,39 @@ const PaymentsPage: React.FC = () => {
               支払いを追加
             </Button>
           </div>
+        </div>
+      </section>
+
+      {/* 結果ページへの進行ボタン */}
+      <section className="bg-white/70 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/20 shadow-lg mb-6 sm:mb-8">
+        <div className="text-center space-y-4">
+          <Button
+            onClick={handleGoToResults}
+            disabled={!canProceedToResults}
+            variant={canProceedToResults ? "default" : "secondary"}
+            size="lg"
+            className="w-full sm:w-auto min-w-48"
+          >
+            {canProceedToResults ? (
+              <span className="flex items-center gap-2">
+                割り勘結果を見る ✨
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </span>
+            ) : (
+              "支払いを追加してください"
+            )}
+          </Button>
+          
+          {!canProceedToResults && (
+            <p className={cn(
+              typography.body.small,
+              'text-gray-500'
+            )}>
+              最低1つの支払いが必要です
+            </p>
+          )}
         </div>
       </section>
 

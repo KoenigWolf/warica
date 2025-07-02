@@ -41,6 +41,18 @@ const ResultPage: React.FC = () => {
 
   return (
     <PageContainer>
+      {/* トップに戻るボタン */}
+      <div className="mb-4">
+        <Button
+          onClick={navigation.goHome}
+          variant="ghost"
+          size="sm"
+          className="text-gray-600 hover:text-gray-800"
+        >
+          ← ホームに戻る
+        </Button>
+      </div>
+
       {/* ページヘッダー */}
       <section className="bg-white/70 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/20 shadow-lg mb-6 sm:mb-8">
         <BoldTitle>
