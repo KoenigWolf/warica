@@ -29,7 +29,7 @@ const AppHeroSection: React.FC = () => (
         'text-gray-600 leading-relaxed'
       )}>
         イベント名・メンバー・支払いを入力するだけで、<br className="hidden sm:block" />
-        美しく簡単に割り勘計算ができます
+        簡単に割り勘計算ができます
       </p>
       
       <div className={cn(
@@ -41,11 +41,11 @@ const AppHeroSection: React.FC = () => (
         </span>
         <span className="flex items-center gap-2">
           <div className="w-3 h-3 bg-blue-500 rounded-full" />
-          個人利用向け
+          個人利用
         </span>
         <span className="flex items-center gap-2">
           <div className="w-3 h-3 bg-violet-500 rounded-full" />
-          完全無料
+          無料
         </span>
       </div>
     </div>
