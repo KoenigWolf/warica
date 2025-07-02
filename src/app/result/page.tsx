@@ -29,12 +29,12 @@ const ResultPage: React.FC = () => {
   // 全リセット・トップ遷移
   const handleReset = useCallback(() => {
     resetAll();
-    navigation.goHome(); // ROUTES.home
+    navigation.goHome();
   }, [resetAll, navigation]);
 
   // 編集・削除ハンドラー
   const handleEditPayment = useCallback((payment: Payment) => {
-    editPayment(payment.id as unknown as any, { // eslint-disable-line @typescript-eslint/no-explicit-any
+    editPayment(payment.id as unknown as any, {
       payerId: payment.payerId,
       amount: payment.amount,
       memo: payment.memo
@@ -42,7 +42,7 @@ const ResultPage: React.FC = () => {
   }, [editPayment]);
 
   const handleRemovePayment = useCallback((id: unknown) => {
-    removePayment(id as unknown as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+    removePayment(id as unknown as any);
   }, [removePayment]);
 
   // リセットボタン状態
@@ -56,7 +56,11 @@ const ResultPage: React.FC = () => {
     <PageContainer>
       <SectionTitle>割り勘結果</SectionTitle>
       <Header eventName={eventName} />
-      
+
+      {/* ここから順番を入れ替え（清算金額リスト → 送金リスト → 支払い詳細） */}
+      <BalanceList balanceItems={resultLogic.display.balanceItems} />
+      <SettlementList settlementItems={resultLogic.display.settlementItems} />
+
       <section className="mb-8" aria-label="支払い詳細一覧">
         <Label className="block mb-3 font-semibold text-lg">支払い詳細</Label>
         <EnhancedPaymentList
@@ -68,15 +72,7 @@ const ResultPage: React.FC = () => {
           emptyMessage="支払い履歴はありません"
         />
       </section>
-      
-      <BalanceList 
-        balanceItems={resultLogic.display.balanceItems}
-      />
-      
-      <SettlementList 
-        settlementItems={resultLogic.display.settlementItems}
-      />
-      
+
       <Button
         className={buttonState.className}
         disabled={buttonState.disabled}
