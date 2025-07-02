@@ -3,7 +3,7 @@ import type { WarikanState, Member, Payment, MemberId, PaymentId } from "../lib/
 import { createMemberId, createPaymentId, createPositiveAmount } from "../lib/types";
 import { loadFromStorage, saveToStorage, clearStorage } from "../lib/storage";
 import { clearCalculationCache } from "../lib/calculations";
-import { validateMemberName, validateEventName, validateAmount } from "../lib/validation";
+import { validateMemberName, validateAmount } from "../lib/validation";
 import {
   calculateMemberBalances,
   calculateMinimalSettlements,

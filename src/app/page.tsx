@@ -10,7 +10,6 @@ import { MemberInput } from "@/components/shared/MemberInput";
 import { useWarikanStore } from "./useWarikanStore";
 import { useSetupLogic, useCommonNavigation, useErrorDisplay } from "../lib/shared-logic";
 import { cn, typography } from "@/lib/design-system";
-import type { MemberId } from "../lib/types";
 
 /**
  * アプリヒーローセクション（プレミアムデザイン）

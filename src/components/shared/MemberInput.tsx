@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { Label } from "../ui/label";
 import { cn, typography } from "../../lib/design-system";
 import type { Member, MemberId } from "../../lib/types";
 
