@@ -12,7 +12,7 @@ import { useSetupLogic, useCommonNavigation, useErrorDisplay } from "../lib/shar
 import { cn, typography, colors, spacing } from "@/lib/design-system";
 
 /**
- * ハイブランド ヒーローセクション
+ * ヒーローセクション
  */
 const BrandHeroSection: React.FC = () => (
   <section className={cn(
@@ -30,7 +30,6 @@ const BrandHeroSection: React.FC = () => (
         colors.text.secondary,
         'leading-relaxed'
       )}>
-        No More Awkward Settlements.<br className="hidden sm:block" />
         Split with Confidence.
       </p>
     </div>
