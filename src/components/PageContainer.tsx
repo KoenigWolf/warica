@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { cn, modernComponents, motion, typography } from "@/lib/design-system";
+import { cn, motion, typography } from "@/lib/design-system";
 
 /**
  * 世界最高水準ページコンテナ v2.0
