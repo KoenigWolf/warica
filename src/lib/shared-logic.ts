@@ -42,14 +42,8 @@ export function useSetupLogic(
     [eventName, members]
   );
 
-  // イベント名変更ハンドラー
-  const handleEventNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    return e.target.value;
-  }, []);
-
   return {
     validation,
-    handleEventNameChange,
     computed: {
       canProceed: validation.isValid,
       memberCount: members.length,
@@ -176,18 +170,5 @@ export function useErrorDisplay(errors: readonly string[]) {
       errors,
       className: 'mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-600 text-sm',
     },
-  };
-}
-
-// =============================================================================
-// ボタン状態共通ロジック
-// =============================================================================
-
-export function useButtonState(text: string, isValid: boolean, onClick: () => void) {
-  return {
-    text,
-    disabled: !isValid,
-    onClick,
-    className: 'w-full mt-8 mb-4 text-base py-3',
   };
 } 

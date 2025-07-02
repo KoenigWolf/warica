@@ -56,16 +56,12 @@ export function useWarikanStore() {
 
   /** イベント名を設定 */
   const setEventName = useCallback((name: string) => {
-    const validation = validateEventName(name);
-    if (!validation.isValid) {
-      setErrors(validation.errors);
-      return;
-    }
-
-    setErrors([]);
+    // 入力中はバリデーションを行わず、状態のみ更新
+    // バリデーションは useSetupLogic で別途実行
+    setErrors([]); // 入力中のエラーはクリア
     setState((prev) => ({ 
       ...prev, 
-      eventName: validation.data!,
+      eventName: name,
       lastUpdated: new Date(),
     }));
   }, []);

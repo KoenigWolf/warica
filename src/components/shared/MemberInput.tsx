@@ -2,13 +2,14 @@ import React, { useState, useCallback } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { cn, typography } from "../../lib/design-system";
 import type { Member, MemberId } from "../../lib/types";
 
 /**
- * メンバー入力コンポーネント
- * - 責務: メンバーの追加・編集・削除UI
- * - 再利用性: 他のページでも使用可能
- * - テスト容易性: 純粋なコンポーネント設計
+ * メンバー入力コンポーネント v2.0
+ * - プレミアムデザイン適用
+ * - スマホ最適化とタッチ操作改善
+ * - 入力問題の修正
  */
 
 export interface MemberInputProps {
@@ -34,13 +35,19 @@ export const MemberInput: React.FC<MemberInputProps> = ({
   const [editId, setEditId] = useState<MemberId | null>(null);
   const [editName, setEditName] = useState("");
 
-  // メンバー追加処理
+  // メンバー追加処理（改善済み）
   const handleAdd = useCallback(() => {
-    if (!newMemberName.trim() || disabled) return;
+    const trimmedName = newMemberName.trim();
+    if (!trimmedName || disabled) return;
     
-    onAddMember(newMemberName.trim());
+    onAddMember(trimmedName);
     setNewMemberName("");
   }, [newMemberName, onAddMember, disabled]);
+
+  // 新しいメンバー名の入力処理（直接更新）
+  const handleNewMemberNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMemberName(e.target.value);
+  }, []);
 
   // 編集開始
   const handleEditStart = useCallback((member: Member) => {
@@ -50,11 +57,17 @@ export const MemberInput: React.FC<MemberInputProps> = ({
     setEditName(member.name);
   }, [disabled]);
 
+  // 編集名の入力処理（直接更新）
+  const handleEditNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditName(e.target.value);
+  }, []);
+
   // 編集保存
   const handleEditSave = useCallback(() => {
-    if (!editId || !editName.trim() || disabled) return;
+    const trimmedName = editName.trim();
+    if (!editId || !trimmedName || disabled) return;
     
-    onEditMember(editId, editName.trim());
+    onEditMember(editId, trimmedName);
     setEditId(null);
     setEditName("");
   }, [editId, editName, onEditMember, disabled]);
@@ -81,130 +94,156 @@ export const MemberInput: React.FC<MemberInputProps> = ({
   }, [handleAdd, handleEditSave]);
 
   return (
-    <div className={`space-y-4 ${className}`}>
-      <div>
-        <Label htmlFor="member-name" className="block mb-2 font-semibold">
-          メンバー
-        </Label>
-        
-        {/* エラー表示 */}
-        {errors.length > 0 && (
-          <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded text-red-600 text-sm">
-            {errors.map((error, index) => (
-              <div key={index}>{error}</div>
-            ))}
-          </div>
-        )}
+    <div className={cn("space-y-4", className)}>
+      {/* エラー表示 */}
+      {errors.length > 0 && (
+        <div className="p-3 bg-red-50/80 backdrop-blur-sm border border-red-200/50 rounded-xl text-red-700">
+          {errors.map((error, index) => (
+            <div key={index} className={cn(typography.body.small, 'leading-relaxed')}>
+              {error}
+            </div>
+          ))}
+        </div>
+      )}
 
-        {/* 新規メンバー追加 */}
-        <div className="flex gap-2 mb-3">
+      {/* 新規メンバー追加フォーム */}
+      <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-gray-100/50">
+        <div className="flex gap-3">
           <Input
-            id="member-name"
             value={newMemberName}
-            onChange={(e) => setNewMemberName(e.target.value)}
+            onChange={handleNewMemberNameChange}
             onKeyDown={(e) => handleKeyDown(e, 'add')}
             placeholder="メンバー名を入力"
             disabled={disabled}
-            className="flex-1 text-base py-2"
+            className="flex-1 h-12 text-base"
             autoComplete="off"
           />
           <Button
             onClick={handleAdd}
             disabled={!newMemberName.trim() || disabled}
             type="button"
-            aria-label="メンバー追加"
-            className="text-base px-4 py-2"
+            size="lg"
+            variant="success"
+            className="min-w-[80px] h-12"
           >
             追加
           </Button>
         </div>
+      </div>
 
-        {/* メンバー一覧 */}
-        {members.length > 0 && (
-          <ul className="space-y-1" role="list" aria-label="メンバー一覧">
-            {members.map((member) => (
-              <li 
-                key={member.id} 
-                className="flex items-center gap-2 p-2 bg-gray-50 rounded"
-              >
-                {editId === member.id ? (
-                  // 編集モード
-                  <>
-                    <Input
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
-                      onKeyDown={(e) => handleKeyDown(e, 'save')}
-                      placeholder="新しい名前"
-                      disabled={disabled}
-                      className="flex-1 text-base py-1"
-                      autoFocus
-                      autoComplete="off"
-                    />
-                    <Button
-                      variant="secondary"
-                      
-                      onClick={handleEditSave}
-                      disabled={!editName.trim() || disabled}
-                      type="button"
-                      aria-label="保存"
-                      className="px-3"
-                    >
-                      保存
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      
-                      onClick={handleEditCancel}
-                      disabled={disabled}
-                      type="button"
-                      aria-label="編集をキャンセル"
-                      className="px-3"
-                    >
-                      キャンセル
-                    </Button>
-                  </>
-                ) : (
-                  // 表示モード
-                  <>
-                    <span className="flex-1 text-base font-medium">
-                      {member.name}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      
-                      onClick={() => handleEditStart(member)}
-                      disabled={disabled}
-                      type="button"
-                      aria-label={`${member.name}を編集`}
-                      className="text-blue-600 px-3 hover:text-blue-800"
-                    >
-                      編集
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      
-                      onClick={() => onRemoveMember(member.id)}
-                      disabled={disabled}
-                      type="button"
-                      aria-label={`${member.name}を削除`}
-                      className="text-red-500 px-3 hover:text-red-700"
-                    >
-                      削除
-                    </Button>
-                  </>
-                )}
-              </li>
-            ))}
-          </ul>
+      {/* メンバー一覧 */}
+      <div className="space-y-3">
+        {members.length === 0 && (
+          <div className={cn(
+            'text-center py-8 px-4 rounded-xl',
+            'bg-gray-50/80 backdrop-blur-sm border-2 border-dashed border-gray-200/50'
+          )}>
+            <div className="text-4xl mb-2">👋</div>
+            <p className={cn(typography.body.base, 'text-gray-500')}>
+              メンバーを追加してください
+            </p>
+          </div>
         )}
 
-        {/* メンバー数表示 */}
-        <div className="mt-2 text-sm text-gray-500">
+        {members.map((member) => (
+          <div 
+            key={member.id} 
+            className={cn(
+              'bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-gray-100/50',
+              'flex items-center gap-3',
+              'hover:bg-white/70 transition-all duration-200'
+            )}
+          >
+            {editId === member.id ? (
+              // 編集モード
+              <>
+                <Input
+                  value={editName}
+                  onChange={handleEditNameChange}
+                  onKeyDown={(e) => handleKeyDown(e, 'save')}
+                  placeholder="新しい名前"
+                  disabled={disabled}
+                  className="flex-1 h-11 text-base"
+                  autoFocus
+                  autoComplete="off"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    variant="success"
+                    size="sm"
+                    onClick={handleEditSave}
+                    disabled={!editName.trim() || disabled}
+                    type="button"
+                    className="min-w-[60px] h-11"
+                  >
+                    保存
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleEditCancel}
+                    disabled={disabled}
+                    type="button"
+                    className="min-w-[60px] h-11"
+                  >
+                    キャンセル
+                  </Button>
+                </div>
+              </>
+            ) : (
+              // 表示モード
+              <>
+                <div className={cn(
+                  'w-12 h-12 rounded-full flex items-center justify-center text-lg font-medium',
+                  'bg-gradient-to-br from-blue-500 to-indigo-500 text-white flex-shrink-0'
+                )}>
+                  {member.name.charAt(0)}
+                </div>
+                <span className={cn(
+                  typography.body.base,
+                  'flex-1 font-medium text-gray-800 min-w-0'
+                )}>
+                  {member.name}
+                </span>
+                <div className="flex gap-2 flex-shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleEditStart(member)}
+                    disabled={disabled}
+                    type="button"
+                    className="text-blue-600 hover:text-blue-800 min-w-[50px] h-10"
+                  >
+                    編集
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onRemoveMember(member.id)}
+                    disabled={disabled}
+                    type="button"
+                    className="text-red-500 hover:text-red-700 min-w-[50px] h-10"
+                  >
+                    削除
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* メンバー数表示 */}
+      <div className={cn(
+        'text-center p-3 bg-gray-50/80 backdrop-blur-sm rounded-lg',
+        'border border-gray-200/50'
+      )}>
+        <p className={cn(typography.body.small, 'text-gray-600')}>
           {members.length === 0 
             ? "メンバーを追加してください（最低2人必要）"
-            : `${members.length}人のメンバー`
+            : `${members.length}人のメンバーが登録されています`
           }
-        </div>
+        </p>
       </div>
     </div>
   );

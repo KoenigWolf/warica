@@ -1,11 +1,12 @@
 "use client";
-import React from "react";
+import React, { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageContainer } from "@/components/PageContainer";
 import { HeroTitle } from "@/components/SectionTitle";
 import { ActionButtons } from "@/components/ActionButtons";
+import { MemberInput } from "@/components/shared/MemberInput";
 import { useWarikanStore } from "./useWarikanStore";
 import { useSetupLogic, useCommonNavigation, useErrorDisplay } from "../lib/shared-logic";
 import { cn, typography } from "@/lib/design-system";
@@ -53,161 +54,6 @@ const AppHeroSection: React.FC = () => (
 );
 
 /**
- * プレミアムメンバー入力コンポーネント
- */
-const PremiumMemberInput: React.FC<{
-  members: Array<{ id: string; name: string }>;
-  onAddMember: (name: string) => void;
-  onEditMember: (id: string, name: string) => void;
-  onRemoveMember: (id: string) => void;
-}> = ({ members, onAddMember, onEditMember, onRemoveMember }) => {
-  const [newName, setNewName] = React.useState("");
-  const [editId, setEditId] = React.useState<string | null>(null);
-  const [editName, setEditName] = React.useState("");
-
-  const handleAdd = () => {
-    if (newName.trim()) {
-      onAddMember(newName.trim());
-      setNewName("");
-    }
-  };
-
-  const startEdit = (member: { id: string; name: string }) => {
-    setEditId(member.id);
-    setEditName(member.name);
-  };
-
-  const saveEdit = () => {
-    if (editId && editName.trim()) {
-      onEditMember(editId, editName.trim());
-      setEditId(null);
-      setEditName("");
-    }
-  };
-
-  const cancelEdit = () => {
-    setEditId(null);
-    setEditName("");
-  };
-
-  return (
-    <section className={cn(
-      'bg-white/70 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/20 shadow-lg',
-      'space-y-4 sm:space-y-6 mb-6 sm:mb-8'
-    )}>
-      {/* セクションヘッダー */}
-      <div className="space-y-2">
-        <Label className={cn(
-          typography.heading.h4,
-          'text-gray-800 flex items-center gap-2'
-        )}>
-          <span className="flex items-center gap-2">
-            👥 メンバー追加
-            <span className={cn(
-              'px-3 py-1 text-sm sm:text-base font-medium rounded-full',
-              'bg-blue-100 text-blue-700'
-            )}>
-              {members.length}人
-            </span>
-          </span>
-        </Label>
-        <p className={cn(typography.body.small, 'text-gray-500')}>
-          最低2人から設定できます
-        </p>
-      </div>
-
-      {/* メンバー追加フォーム */}
-      <div className={cn(
-        'bg-white/50 rounded-lg p-4 border border-gray-100'
-      )}>
-        <div className="flex gap-3">
-          <Input
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            placeholder="メンバー名を入力"
-            className="flex-1"
-            onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-          />
-          <Button 
-            onClick={handleAdd} 
-            disabled={!newName.trim()}
-            size="lg"
-            variant="success"
-          >
-            追加
-          </Button>
-        </div>
-      </div>
-
-      {/* メンバーリスト */}
-      <div className="space-y-3">
-        {members.length === 0 && (
-          <div className={cn(
-            'text-center py-8 px-4 rounded-xl',
-            'bg-gray-50/80 backdrop-blur-sm border-2 border-dashed border-gray-200'
-          )}>
-            <div className="text-4xl mb-2">👋</div>
-            <p className={cn(typography.body.base, 'text-gray-500')}>
-              メンバーを追加してください
-            </p>
-          </div>
-        )}
-
-        {members.map((member) => (
-          <div 
-            key={member.id} 
-            className={cn(
-              'bg-white/50 backdrop-blur-sm rounded-lg p-3 border border-gray-100',
-              'flex items-center gap-3',
-              'hover:bg-white/70 transition-all duration-200'
-            )}
-          >
-            {editId === member.id ? (
-              <>
-                <Input
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="flex-1"
-                  autoFocus
-                />
-                <div className="flex gap-2">
-                  <Button size="sm" variant="success" onClick={saveEdit}>
-                    保存
-                  </Button>
-                  <Button size="sm" variant="ghost" onClick={cancelEdit}>
-                    キャンセル
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className={cn(
-                  'w-10 h-10 rounded-full flex items-center justify-center text-base font-medium',
-                  'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
-                )}>
-                  {member.name.charAt(0)}
-                </div>
-                <span className={cn(typography.body.base, 'flex-1 font-medium')}>
-                  {member.name}
-                </span>
-                <div className="flex gap-1">
-                  <Button size="sm" variant="ghost" onClick={() => startEdit(member)}>
-                    編集
-                  </Button>
-                  <Button size="sm" variant="destructive" onClick={() => onRemoveMember(member.id)}>
-                    削除
-                  </Button>
-                </div>
-              </>
-            )}
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-};
-
-/**
  * メインホームページコンポーネント
  */
 export default function HomePage() {
@@ -225,19 +71,10 @@ export default function HomePage() {
   const navigation = useCommonNavigation();
   const errorDisplay = useErrorDisplay(errors);
 
-  // イベント名変更ハンドラー
-  const handleEventNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEventName(setupLogic.handleEventNameChange(e));
-  };
-
-  // 型安全なメンバー操作のラッパー
-  const handleEditMember = (id: string, name: string) => {
-    editMember(id as MemberId, name);
-  };
-
-  const handleRemoveMember = (id: string) => {
-    removeMember(id as MemberId);
-  };
+  // イベント名変更ハンドラー（直接処理に変更）
+  const handleEventNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setEventName(e.target.value);
+  }, [setEventName]);
 
   // 次ページへの進行
   const handleNext = () => {
@@ -255,7 +92,7 @@ export default function HomePage() {
       {errorDisplay.hasErrors && (
         <div className={cn(
           'p-4 rounded-xl border-l-4 border-red-500',
-          'bg-red-50/80 backdrop-blur-sm'
+          'bg-red-50/80 backdrop-blur-sm mb-6'
         )}>
           <div className="flex items-start gap-3">
             <svg className="w-5 h-5 text-red-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -289,19 +126,43 @@ export default function HomePage() {
           value={eventName}
           onChange={handleEventNameChange}
           placeholder="例: 新年会 2024、温泉旅行、飲み会"
-          floating
-          label="イベント名"
-          helperText="後から変更できます"
+          className="h-12 text-base sm:text-lg"
         />
       </section>
 
       {/* メンバー入力セクション */}
-      <PremiumMemberInput
-        members={members as unknown as Array<{ id: string; name: string }>}
-        onAddMember={addMember}
-        onEditMember={handleEditMember}
-        onRemoveMember={handleRemoveMember}
-      />
+      <section className={cn(
+        'bg-white/70 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/20 shadow-lg',
+        'mb-6 sm:mb-8'
+      )}>
+        <div className="space-y-2 mb-4">
+          <Label className={cn(
+            typography.heading.h4,
+            'text-gray-800 flex items-center gap-2'
+          )}>
+            <span className="flex items-center gap-2">
+              👥 メンバー追加
+              <span className={cn(
+                'px-3 py-1 text-sm sm:text-base font-medium rounded-full',
+                'bg-blue-100 text-blue-700'
+              )}>
+                {members.length}人
+              </span>
+            </span>
+          </Label>
+          <p className={cn(typography.body.small, 'text-gray-500')}>
+            最低2人から設定できます
+          </p>
+        </div>
+        
+        <MemberInput
+          members={members}
+          onAddMember={addMember}
+          onEditMember={editMember}
+          onRemoveMember={removeMember}
+          errors={setupLogic.validation.errors}
+        />
+      </section>
 
       {/* 進行ボタンセクション */}
       <section className="space-y-4 pt-6 mb-6 sm:mb-8">
