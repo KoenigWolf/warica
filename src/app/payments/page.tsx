@@ -1,8 +1,7 @@
 "use client";
 import React, { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { useWarikanStore } from "../useWarikanStore";
-import type { MemberId } from "../../lib/types";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,68 +11,76 @@ import { PageContainer } from "@/components/PageContainer";
 import { SectionTitle } from "@/components/SectionTitle";
 import { ActionButtons } from "@/components/ActionButtons";
 import { PaymentList } from "@/components/shared/PaymentItem";
+import { usePaymentFormLogic, useCommonNavigation, useButtonState } from "../../lib/shared-logic";
+import { ROUTES } from "../../lib/routes";
 
 /**
  * 割り勘 支払い入力ページ（支払い対象のメンバー全員/複数も選択可）
+ * - 共通ロジックライブラリで重複削除・簡素化
  */
 const PaymentsPage: React.FC = () => {
-  const router = useRouter();
   const {
     state: { members, payments },
     addPayment,
     removePayment,
   } = useWarikanStore();
 
-  // 入力値
+  // 共通ロジック使用
+  const paymentLogic = usePaymentFormLogic(members);
+  const navigation = useCommonNavigation();
+
+  // 入力値（ローカル状態）
   const [payerId, setPayerId] = useState<string>(members[0]?.id || "");
-  const [selectedPayeeIds, setSelectedPayeeIds] = useState<string[]>(members.map(m => m.id)); // デフォルト全員
+  const [selectedPayeeIds, setSelectedPayeeIds] = useState<string[]>(members.map(m => m.id));
   const [amount, setAmount] = useState<string>("");
   const [memo, setMemo] = useState<string>("");
 
-  /**
-   * payees全員選択/解除トグル
-   */
+  // payees全員選択/解除トグル
   const isAllPayees = selectedPayeeIds.length === members.length;
   const toggleSelectAllPayees = () => {
     setSelectedPayeeIds(isAllPayees ? [] : members.map(m => m.id));
   };
 
-  /**
-   * payee個別選択トグル
-   */
+  // payee個別選択トグル
   const handlePayeeToggle = (id: string) => {
     setSelectedPayeeIds(prev =>
       prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id]
     );
   };
 
-  /**
-   * 支払い追加ロジック
-   * - 金額を選択されたpayees数で分割
-   * - payerId == payeeIdのときは登録しない（自分には割り当てない）
-   */
+  // 支払い追加ロジック（共通ライブラリ使用）
   const handleAdd = useCallback(() => {
     const validAmount = Number(amount);
-    const payees = selectedPayeeIds.filter(id => id !== payerId);
-    if (!payerId || !amount || isNaN(validAmount) || validAmount <= 0 || payees.length === 0) return;
+    const success = paymentLogic.calculateSplitPayments(
+      payerId,
+      validAmount,
+      selectedPayeeIds,
+      memo,
+      addPayment
+    );
 
-    // 割り勘金額計算（端数は最初のpayeeから+1）
-    const base = Math.floor(validAmount / payees.length);
-    let amari = validAmount - base * payees.length;
-    payees.forEach((payeeId) => {
-      const share = base + (amari > 0 ? 1 : 0);
-              addPayment(
-          payerId as MemberId,
-          share,
-          `[${members.find(m => m.id === payeeId)?.name}]${memo ? " " + memo : ""}`
-        );
-      if (amari > 0) amari--;
-    });
+    if (success) {
+      setAmount("");
+      setMemo("");
+      setSelectedPayeeIds(members.map(m => m.id));
+    }
+  }, [payerId, amount, memo, selectedPayeeIds, paymentLogic, addPayment, members]);
 
-    setAmount("");
-    setMemo("");
-    setSelectedPayeeIds(members.map(m => m.id));
-  }, [payerId, amount, memo, addPayment, members, selectedPayeeIds]);
+  // 追加ボタンの有効性チェック
+  const canAdd = !!(
+    payerId &&
+    amount &&
+    !isNaN(Number(amount)) &&
+    Number(amount) > 0 &&
+    selectedPayeeIds.filter(id => id !== payerId).length > 0
+  );
+
+  // 進行ボタン状態
+  const buttonState = useButtonState(
+    "割り勘計算へ進む",
+    payments.length > 0,
+    navigation.goToResults // ROUTES.result
+  );
 
   return (
     <PageContainer>
@@ -142,13 +149,7 @@ const PaymentsPage: React.FC = () => {
             />
             <Button
               onClick={handleAdd}
-              disabled={
-                !payerId ||
-                !amount ||
-                isNaN(Number(amount)) ||
-                Number(amount) <= 0 ||
-                selectedPayeeIds.filter(id => id !== payerId).length === 0
-              }
+              disabled={!canAdd}
               type="button"
               aria-label="支払いを追加"
               className="text-base px-4 py-2"
@@ -169,13 +170,13 @@ const PaymentsPage: React.FC = () => {
         />
       </section>
       <Button
-        className="w-full mt-8 mb-4 text-base py-3"
-        disabled={payments.length === 0}
-        onClick={() => router.push("/result")}
+        className={buttonState.className}
+        disabled={buttonState.disabled}
+        onClick={buttonState.onClick}
         type="button"
         aria-label="割り勘計算へ進む"
       >
-        割り勘計算へ進む
+        {buttonState.text}
       </Button>
       <ActionButtons />
     </PageContainer>

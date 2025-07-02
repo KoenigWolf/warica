@@ -1,6 +1,5 @@
 "use client";
-import React, { useCallback, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,8 +7,9 @@ import { PageContainer } from "@/components/PageContainer";
 import { SectionTitle } from "@/components/SectionTitle";
 import { ActionButtons } from "@/components/ActionButtons";
 import { useWarikanStore } from "./useWarikanStore";
-import { validateSetupCompletion } from "../lib/validation";
+import { useSetupLogic, useCommonNavigation, useErrorDisplay, useButtonState } from "../lib/shared-logic";
 import type { MemberId } from "../lib/types";
+import { ROUTES } from "../lib/routes";
 
 /**
  * アプリ紹介セクションコンポーネント
@@ -28,7 +28,7 @@ const AppIntroduction: React.FC = () => (
 );
 
 /**
- * 簡易メンバー入力コンポーネント（暫定実装）
+ * 簡易メンバー入力コンポーネント
  */
 const SimpleMemberInput: React.FC<{
   members: Array<{ id: string; name: string }>;
@@ -110,28 +110,10 @@ const SimpleMemberInput: React.FC<{
 };
 
 /**
- * 進行ボタンコンポーネント
- */
-const ProgressButton: React.FC<{
-  isValid: boolean;
-  onNext: () => void;
-}> = ({ isValid, onNext }) => (
-  <Button
-    className="w-full mt-8 mb-4 text-base py-3"
-    disabled={!isValid}
-    onClick={onNext}
-    type="button"
-  >
-    支払い入力へ進む
-  </Button>
-);
-
-/**
  * ホームページ（セットアップページ）
- * - リファクタリング済み: 型安全性、エラーハンドリング、パフォーマンス最適化
+ * - 共通ロジックライブラリで重複削除・簡素化
  */
 export default function HomePage() {
-  const router = useRouter();
   const {
     state: { eventName, members },
     errors,
@@ -141,41 +123,47 @@ export default function HomePage() {
     removeMember,
   } = useWarikanStore();
 
-  // バリデーション結果をメモ化
-  const validation = useMemo(() => 
-    validateSetupCompletion(eventName, members),
-    [eventName, members]
-  );
+  // 共通ロジック使用
+  const setupLogic = useSetupLogic(eventName, members);
+  const navigation = useCommonNavigation();
+  const errorDisplay = useErrorDisplay(errors);
 
-  // 次ページへの進行
-  const handleNext = useCallback(() => {
-    if (validation.isValid) {
-      router.push("/payments");
-    }
-  }, [validation.isValid, router]);
-
-  // イベント名変更
-  const handleEventNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setEventName(e.target.value);
-  }, [setEventName]);
+  // イベント名変更ハンドラー
+  const handleEventNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEventName(setupLogic.handleEventNameChange(e));
+  };
 
   // 型安全なメンバー操作のラッパー
-  const handleEditMember = useCallback((id: string, name: string) => {
+  const handleEditMember = (id: string, name: string) => {
     editMember(id as MemberId, name);
-  }, [editMember]);
+  };
 
-  const handleRemoveMember = useCallback((id: string) => {
+  const handleRemoveMember = (id: string) => {
     removeMember(id as MemberId);
-  }, [removeMember]);
+  };
+
+  // 次ページへの進行
+  const handleNext = () => {
+    if (setupLogic.computed.canProceed) {
+      navigation.goToPayments();
+    }
+  };
+
+  // ボタン状態
+  const buttonState = useButtonState(
+    "支払い入力へ進む",
+    setupLogic.computed.canProceed,
+    handleNext
+  );
 
   return (
     <PageContainer>
       <AppIntroduction />
       
       {/* エラー表示 */}
-      {errors.length > 0 && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-600 text-sm">
-          {errors.map((error, index) => (
+      {errorDisplay.hasErrors && (
+        <div className={errorDisplay.errorProps.className}>
+          {errorDisplay.errorProps.errors.map((error, index) => (
             <div key={index}>{error}</div>
           ))}
         </div>
@@ -204,17 +192,15 @@ export default function HomePage() {
         onRemoveMember={handleRemoveMember}
       />
 
-      {/* バリデーションエラー表示 */}
-      {!validation.isValid && (
-        <div className="mb-4 p-2 bg-yellow-50 border border-yellow-200 rounded text-yellow-800 text-sm">
-          {validation.errors.map((error, index) => (
-            <div key={index}>{error}</div>
-          ))}
-        </div>
-      )}
-
       {/* 進行ボタン */}
-      <ProgressButton isValid={validation.isValid} onNext={handleNext} />
+      <Button
+        className={buttonState.className}
+        disabled={buttonState.disabled}
+        onClick={buttonState.onClick}
+        type="button"
+      >
+        {buttonState.text}
+      </Button>
 
       <ActionButtons />
     </PageContainer>

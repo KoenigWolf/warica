@@ -1,12 +1,13 @@
 import React from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useWarikanStore } from "../app/useWarikanStore";
+import { useCommonNavigation } from "../lib/shared-logic";
 import { cn } from "@/lib/design-system";
+import { ROUTES } from "../lib/routes";
 
 /**
  * アクションボタンコンポーネント
- * - 新デザインシステム統合
+ * - 共通ナビゲーションライブラリで重複削除
  * - 統一されたボタンスタイルとスペーシング
  * - レスポンシブ対応
  */
@@ -20,17 +21,17 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
   spacing = 'base',
   className 
 }) => {
-  const router = useRouter();
   const { resetAll } = useWarikanStore();
+  const navigation = useCommonNavigation();
 
-  // ボタンアクション
+  // ボタンアクション（共通ナビゲーション使用）
   const handleReset = () => {
     resetAll();
-    router.push("/");
+    navigation.goHome(); // ROUTES.home
   };
 
   const handleBack = () => {
-    router.back();
+    navigation.goBack();
   };
 
   // スペーシングマッピング
@@ -64,7 +65,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
         className="w-full sm:w-auto text-sm sm:text-base px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50"
         onClick={handleReset}
         type="button"
-        aria-label="全データをリセットしてホームに戻る"
+        aria-label={`全データをリセットして${ROUTES.home}に戻る`}
       >
         🔄 リセット
       </Button>
