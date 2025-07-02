@@ -1,22 +1,73 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import React from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { useWarikanStore } from "../app/useWarikanStore";
+import { cn } from "@/lib/design-system";
 
 /**
- * 全ページ共通のページ遷移ボタン群
- * - UI一貫性・保守性・テスト容易性向上
- * - セットアップページをエントリーページとして位置づけ
+ * アクションボタンコンポーネント
+ * - 新デザインシステム統合
+ * - 統一されたボタンスタイルとスペーシング
+ * - レスポンシブ対応
  */
-export const ActionButtons: React.FC = () => (
-  <div className="flex flex-col gap-2 w-full">
-    <Button asChild variant="outline" className="w-full text-base py-2" aria-label="新しい割り勘を始める">
-      <Link href="/">新しい割り勘を始める</Link>
-    </Button>
-    <Button asChild variant="outline" className="w-full text-base py-2" aria-label="支払い入力へ">
-      <Link href="/payments">支払い入力へ</Link>
-    </Button>
-    <Button asChild variant="outline" className="w-full text-base py-2" aria-label="割り勘結果へ">
-      <Link href="/result">割り勘結果へ</Link>
-    </Button>
-  </div>
-); 
+
+interface ActionButtonsProps {
+  spacing?: 'sm' | 'base' | 'lg';
+  className?: string;
+}
+
+export const ActionButtons: React.FC<ActionButtonsProps> = ({ 
+  spacing = 'base',
+  className 
+}) => {
+  const router = useRouter();
+  const { resetAll } = useWarikanStore();
+
+  // ボタンアクション
+  const handleReset = () => {
+    resetAll();
+    router.push("/");
+  };
+
+  const handleBack = () => {
+    router.back();
+  };
+
+  // スペーシングマッピング
+  const spacingClass = {
+    sm: 'gap-2',
+    base: 'gap-3', 
+    lg: 'gap-4',
+  }[spacing];
+
+  return (
+    <div 
+      className={cn(
+        'flex justify-between items-center mt-6',
+        'flex-col sm:flex-row',
+        spacingClass,
+        className
+      )}
+    >
+      <Button
+        variant="outline"
+        className="w-full sm:w-auto text-sm sm:text-base px-4 py-2"
+        onClick={handleBack}
+        type="button"
+        aria-label="前のページに戻る"
+      >
+        ← 戻る
+      </Button>
+      
+      <Button
+        variant="ghost"
+        className="w-full sm:w-auto text-sm sm:text-base px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+        onClick={handleReset}
+        type="button"
+        aria-label="全データをリセットしてホームに戻る"
+      >
+        🔄 リセット
+      </Button>
+    </div>
+  );
+}; 

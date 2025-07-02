@@ -3,7 +3,11 @@ import type { WarikanState, Member, Payment, MemberId, PaymentId } from "../lib/
 import { createMemberId, createPaymentId, createPositiveAmount } from "../lib/types";
 import { loadFromStorage, saveToStorage, clearStorage } from "../lib/storage";
 import { clearCalculationCache } from "../lib/calculations";
-import { validateMemberName, validateAmount } from "../lib/validation";
+import { validateMemberName, validateEventName, validateAmount } from "../lib/validation";
+import {
+  calculateMemberBalances,
+  calculateMinimalSettlements,
+} from '../lib/calculations';
 
 /**
  * 割り勘アプリ用状態管理カスタムフック
@@ -52,12 +56,38 @@ export function useWarikanStore() {
 
   /** イベント名を設定 */
   const setEventName = useCallback((name: string) => {
+    const validation = validateEventName(name);
+    if (!validation.isValid) {
+      setErrors(validation.errors);
+      return;
+    }
+
+    setErrors([]);
     setState((prev) => ({ 
       ...prev, 
-      eventName: name.trim(),
+      eventName: validation.data!,
       lastUpdated: new Date(),
     }));
   }, []);
+
+  /** 型安全ヘルパー関数 */
+  const createSafeMemberId = (id: string): MemberId => {
+    const result = createMemberId(id);
+    if (result.success) return result.data;
+    throw new Error(`Invalid member ID: ${id}`);
+  };
+
+  const createSafePaymentId = (id: string): PaymentId => {
+    const result = createPaymentId(id);
+    if (result.success) return result.data;
+    throw new Error(`Invalid payment ID: ${id}`);
+  };
+
+  const createSafeAmount = (amount: number) => {
+    const result = createPositiveAmount(amount);
+    if (result.success) return result.data;
+    return null;
+  };
 
   /** メンバー追加（バリデーション付き） */
   const addMember = useCallback((name: string) => {
@@ -72,8 +102,9 @@ export function useWarikanStore() {
       clearCalculationCache();
       
       const newMember: Member = {
-        id: createMemberId(crypto.randomUUID()),
+        id: createSafeMemberId(crypto.randomUUID()),
         name: validation.data!,
+        createdAt: new Date(),
       };
 
       return {
@@ -136,7 +167,7 @@ export function useWarikanStore() {
         return prev;
       }
 
-      const positiveAmount = createPositiveAmount(validation.data!);
+      const positiveAmount = createSafeAmount(validation.data!);
       if (!positiveAmount) {
         setErrors(['正の金額を入力してください']);
         return prev;
@@ -146,7 +177,7 @@ export function useWarikanStore() {
       clearCalculationCache();
 
       const newPayment: Payment = {
-        id: createPaymentId(crypto.randomUUID()),
+        id: createSafePaymentId(crypto.randomUUID()),
         payerId,
         amount: positiveAmount,
         memo: memo?.trim(),
@@ -190,7 +221,7 @@ export function useWarikanStore() {
           return prev;
         }
 
-        const positiveAmount = createPositiveAmount(validation.data!);
+        const positiveAmount = createSafeAmount(validation.data!);
         if (!positiveAmount) {
           setErrors(['正の金額を入力してください']);
           return prev;
@@ -204,7 +235,7 @@ export function useWarikanStore() {
       return {
         ...prev,
         payments: prev.payments.map((p) =>
-          p.id === id ? { ...p, ...processedUpdate } : p
+          p.id === id ? { ...p, ...processedUpdate, updatedAt: new Date() } : p
         ),
         lastUpdated: new Date(),
       };
@@ -236,7 +267,13 @@ export function useWarikanStore() {
     paymentCount: state.payments.length,
     totalAmount: state.payments.reduce((sum, p) => sum + p.amount, 0),
     hasData: state.members.length > 0 || state.payments.length > 0,
-  }), [state.members.length, state.payments]);
+    
+    // 高度な計算結果
+    balances: calculateMemberBalances(state.members, state.payments),
+    settlements: calculateMinimalSettlements(
+      calculateMemberBalances(state.members, state.payments)
+    ),
+  }), [state.members, state.payments]);
 
   return {
     // 基本状態

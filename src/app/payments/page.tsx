@@ -2,6 +2,7 @@
 import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useWarikanStore } from "../useWarikanStore";
+import type { MemberId } from "../../lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { PageContainer } from "@/components/PageContainer";
 import { SectionTitle } from "@/components/SectionTitle";
 import { ActionButtons } from "@/components/ActionButtons";
+import { PaymentList } from "@/components/shared/PaymentItem";
 
 /**
  * 割り勘 支払い入力ページ（支払い対象のメンバー全員/複数も選択可）
@@ -61,8 +63,7 @@ const PaymentsPage: React.FC = () => {
     payees.forEach((payeeId) => {
       const share = base + (amari > 0 ? 1 : 0);
               addPayment(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          payerId as any,
+          payerId as MemberId,
           share,
           `[${members.find(m => m.id === payeeId)?.name}]${memo ? " " + memo : ""}`
         );
@@ -158,36 +159,14 @@ const PaymentsPage: React.FC = () => {
         </div>
       </section>
       <section className="mb-8" aria-label="支払い一覧">
-        <Label className="block mb-2 font-semibold">支払い一覧</Label>
-        {payments.length === 0 ? (
-          <p className="text-gray-400">まだ支払いが登録されていません</p>
-        ) : (
-          <ul>
-            {payments.map((p) => (
-              <li
-                key={p.id}
-                className="flex items-center gap-2 mb-1 border-b py-1"
-              >
-                <span className="flex-1 text-base">
-                  {members.find((m) => m.id === p.payerId)?.name || "?"} が {p.amount}円
-                  {p.memo && (
-                    <span className="text-xs text-gray-500 ml-2">({p.memo})</span>
-                  )}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs text-red-500 px-3"
-                  onClick={() => removePayment(p.id)}
-                  type="button"
-                  aria-label="この支払いを削除"
-                >
-                  削除
-                </Button>
-              </li>
-            ))}
-          </ul>
-        )}
+        <Label className="block mb-3 font-semibold text-lg">支払い一覧</Label>
+        <PaymentList
+          payments={payments}
+          members={members}
+          onRemovePayment={removePayment}
+          compact={true}
+          emptyMessage="まだ支払いが登録されていません"
+        />
       </section>
       <Button
         className="w-full mt-8 mb-4 text-base py-3"

@@ -3,14 +3,14 @@ import React, { useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useWarikanStore } from "../useWarikanStore";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { PageContainer } from "@/components/PageContainer";
 import { SectionTitle } from "@/components/SectionTitle";
 import { ActionButtons } from "@/components/ActionButtons";
+import { PaymentList as EnhancedPaymentList } from "@/components/shared/PaymentItem";
 import { calculateMemberBalances, calculateMinimalSettlements } from "../../lib/calculations";
-import type { Member, Payment, Settlement, MemberId, PositiveAmount } from "../../lib/types";
+import { formatCompactAmount, formatBalance, getBalanceStyleClass } from "../../lib/utils";
+import type { Member, Settlement } from "../../lib/types";
 
 /**
  * 割り勘結果ページ
@@ -57,12 +57,21 @@ const ResultPage: React.FC = () => {
     <PageContainer>
       <SectionTitle>割り勘結果</SectionTitle>
       <Header eventName={eventName} />
-      <PaymentList 
-        payments={payments as Payment[]} 
-        members={members as Member[]} 
-        editPayment={editPayment as (id: string, update: Partial<Pick<Payment, 'payerId' | 'amount' | 'memo'>>) => void} 
-        removePayment={removePayment as (id: string) => void} 
-      />
+      <section className="mb-8" aria-label="支払い詳細一覧">
+        <Label className="block mb-3 font-semibold text-lg">支払い詳細</Label>
+        <EnhancedPaymentList
+          payments={payments}
+          members={members}
+          onEditPayment={(payment) => editPayment(payment.id as any, { // eslint-disable-line @typescript-eslint/no-explicit-any
+            payerId: payment.payerId,
+            amount: payment.amount,
+            memo: payment.memo
+          })}
+          onRemovePayment={(id) => removePayment(id as any)} // eslint-disable-line @typescript-eslint/no-explicit-any
+          compact={false}
+          emptyMessage="支払い履歴はありません"
+        />
+      </section>
       <BalanceList members={members as Member[]} balances={balances} />
       <SettlementList settlements={settlements as Settlement[]} />
       <Button
@@ -123,20 +132,10 @@ const BalanceList: React.FC<{
           >
             <span>{member.name}</span>
             <span
-              className={
-                balance > 0
-                  ? "text-green-600"
-                  : balance < 0
-                  ? "text-red-600"
-                  : "text-gray-600"
-              }
+              className={getBalanceStyleClass(balance)}
               aria-label={label}
             >
-              {balance > 0
-                ? `+${balance}円 受け取り`
-                : balance < 0
-                ? `${balance}円 支払い`
-                : "±0円"}
+              {formatBalance(balance)}円 {balance > 0 ? '受け取り' : balance < 0 ? '支払い' : ''}
             </span>
           </li>
         );
@@ -158,10 +157,17 @@ const SettlementList: React.FC<{
     ) : (
       <ul>
         {settlements.map((s, i) => (
-          <li key={i} className="py-1 text-sm">
-            <span className="font-semibold">{s.from}</span> さん →{" "}
-            <span className="font-semibold">{s.to}</span> さんに{" "}
-            <span className="text-blue-700 font-bold">{s.amount}円</span> 支払う
+          <li key={i} className="py-2 px-3 bg-blue-50 rounded-lg mb-2 border-l-4 border-blue-400">
+            <div className="flex items-center justify-between">
+              <span className="text-sm">
+                <span className="font-semibold text-gray-800">{s.from}</span> 
+                <span className="text-gray-500 mx-2">→</span>
+                <span className="font-semibold text-gray-800">{s.to}</span>
+              </span>
+              <span className="text-blue-700 font-bold text-lg font-mono">
+                {formatCompactAmount(s.amount)}
+              </span>
+            </div>
           </li>
         ))}
       </ul>
@@ -169,141 +175,4 @@ const SettlementList: React.FC<{
   </section>
 );
 
-/**
- * 支払い一覧 + 編集機能
- */
-type PaymentListProps = {
-  payments: Payment[];
-  members: Member[];
-  editPayment: (id: string, update: Partial<Pick<Payment, 'payerId' | 'amount' | 'memo'>>) => void;
-  removePayment: (id: string) => void;
-};
-
-const PaymentList: React.FC<PaymentListProps> = ({ 
-  payments, 
-  members, 
-  editPayment, 
-  removePayment 
-}) => {
-  const [editId, setEditId] = React.useState<string | null>(null);
-  const [form, setForm] = React.useState<{ 
-    payerId: string; 
-    amount: string; 
-    memo: string 
-  }>({ payerId: "", amount: "", memo: "" });
-
-  // 編集開始
-  const handleEditStart = (p: Payment) => {
-    setEditId(p.id);
-    setForm({ 
-      payerId: p.payerId, 
-      amount: String(p.amount), 
-      memo: p.memo || "" 
-    });
-  };
-
-  // 編集キャンセル
-  const handleEditCancel = () => {
-    setEditId(null);
-    setForm({ payerId: "", amount: "", memo: "" });
-  };
-
-  // 編集保存
-  const handleEditSave = (id: string) => {
-    if (!form.payerId || !form.amount || isNaN(Number(form.amount)) || Number(form.amount) <= 0) return;
-    editPayment(id, { 
-      payerId: form.payerId as MemberId, 
-      amount: Number(form.amount) as PositiveAmount, 
-      memo: form.memo 
-    });
-    setEditId(null);
-  };
-
-  if (payments.length === 0) return null;
-
-  return (
-    <section className="mb-8" aria-label="支払い一覧">
-      <Label className="font-semibold mb-2 text-base">支払い一覧（編集可）</Label>
-      <ul>
-        {payments.map((p) => (
-          <li key={p.id} className="flex items-center gap-2 mb-1 border-b py-1">
-            {editId === p.id ? (
-              <>
-                <Select 
-                  value={form.payerId} 
-                  onValueChange={v => setForm(f => ({ ...f, payerId: v }))}
-                >
-                  <SelectTrigger className="min-w-[90px]">
-                    <SelectValue placeholder="支払者" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {members.map(m => (
-                      <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input
-                  type="number"
-                  min="1"
-                  value={form.amount}
-                  onChange={e => setForm(f => ({ ...f, amount: e.target.value }))}
-                  className="w-20"
-                  aria-label="金額"
-                />
-                <Input
-                  value={form.memo}
-                  onChange={e => setForm(f => ({ ...f, memo: e.target.value }))}
-                  className="flex-1"
-                  aria-label="メモ"
-                  placeholder="メモ（任意）"
-                />
-                <Button 
-                  size="sm" 
-                  variant="secondary" 
-                  onClick={() => handleEditSave(p.id)} 
-                  aria-label="保存"
-                >
-                  保存
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
-                  onClick={handleEditCancel} 
-                  aria-label="キャンセル"
-                >
-                  キャンセル
-                </Button>
-              </>
-            ) : (
-              <>
-                <span className="flex-1">
-                  {members.find(m => m.id === p.payerId)?.name || "?"} が {p.amount}円
-                  {p.memo && (
-                    <span className="text-xs text-gray-500 ml-2">({p.memo})</span>
-                  )}
-                </span>
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
-                  onClick={() => handleEditStart(p)} 
-                  aria-label="編集"
-                >
-                  編集
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
-                  className="text-red-500" 
-                  onClick={() => removePayment(p.id)} 
-                  aria-label="削除"
-                >
-                  削除
-                </Button>
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-};
+// PaymentListコンポーネントは shared/PaymentItem.tsx に移動

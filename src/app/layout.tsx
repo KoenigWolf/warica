@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 
 // サイト全体のメタデータ（SEO・OGPにも利用可）
 export const metadata: Metadata = {
-  title: "シンプル割り勘アプリ",
-  description: "すぐに始められる割り勘計算アプリ。イベント名・メンバー・支払いを入力するだけで、誰でも簡単に正確な割り勘計算ができます。ローカル保存で安心・個人利用に最適。",
+  title: "warica - シンプル割り勘アプリ",
+  description: "イベント名・メンバー・支払いを入力するだけで、簡単に割り勘計算！",
   applicationName: "シンプル割り勘アプリ",
   authors: [{ name: "WarikanApp Project" }],
   keywords: [
