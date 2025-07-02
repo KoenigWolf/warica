@@ -13,13 +13,6 @@ import { useCommonNavigation } from "../../lib/shared-logic";
 import { cn, typography } from "@/lib/design-system";
 import type { MemberId } from "@/lib/types";
 
-/**
- * 世界最高水準支払いページ v2.0
- * - Glass Morphism + プレミアムフォームデザイン
- * - 黄金比ベース余白システム
- * - 高度なインタラクション・バリデーション
- * - 完全アクセシビリティ対応
- */
 const PaymentsPage: React.FC = () => {
   const {
     state: { members, payments },
