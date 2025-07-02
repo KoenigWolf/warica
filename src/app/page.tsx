@@ -20,7 +20,7 @@ const AppHeroSection: React.FC = () => (
     'mb-6 sm:mb-8'
   )}>
     <HeroTitle>
-      シンプル割り勘アプリ
+      WARICAN
     </HeroTitle>
     
     <div className="space-y-4 max-w-2xl mx-auto">
@@ -174,7 +174,7 @@ export default function HomePage() {
         >
           {setupLogic.computed.canProceed ? (
             <span className="flex items-center gap-2">
-              支払い入力へ進む ✨
+              支払い入力へ進む
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>

@@ -24,7 +24,7 @@ export const viewport: Viewport = {
 
 // サイト全体のメタデータ（SEO・OGPにも利用可）
 export const metadata: Metadata = {
-  title: "warica - シンプル割り勘アプリ",
+  title: "warican - シンプル割り勘アプリ",
   description: "イベント名・メンバー・支払いを入力するだけで、簡単に割り勘計算！",
   applicationName: "シンプル割り勘アプリ",
   authors: [{ name: "WarikanApp Project" }],
