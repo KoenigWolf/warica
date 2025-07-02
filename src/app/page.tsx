@@ -30,8 +30,8 @@ const BrandHeroSection: React.FC = () => (
         colors.text.secondary,
         'leading-relaxed'
       )}>
-        Minimalist bill splitting application.<br className="hidden sm:block" />
-        Calculate expenses with elegance and precision.
+        No More Awkward Settlements.<br className="hidden sm:block" />
+        Split with Confidence.
       </p>
     </div>
   </section>
