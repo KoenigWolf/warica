@@ -68,7 +68,7 @@ const PaymentsPage: React.FC = () => {
       const baseAmount = Math.floor(validAmount / totalPayees);
       let remainder = validAmount - baseAmount * totalPayees;
 
-      selectedPayees.forEach((payeeId, index) => {
+      selectedPayees.forEach((payeeId) => {
         const shareAmount = baseAmount + (remainder > 0 ? 1 : 0);
         const payeeName = members.find(m => m.id === payeeId)?.name || 'Unknown';
         const splitMemo = `${memo ? memo + ' ' : ''}(${payeeName}'s share)`;
