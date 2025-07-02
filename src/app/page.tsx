@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageContainer } from "@/components/PageContainer";
-import { SectionTitle, HeroTitle } from "@/components/SectionTitle";
+import { HeroTitle } from "@/components/SectionTitle";
 import { ActionButtons } from "@/components/ActionButtons";
 import { useWarikanStore } from "./useWarikanStore";
-import { useSetupLogic, useCommonNavigation, useErrorDisplay, useButtonState } from "../lib/shared-logic";
+import { useSetupLogic, useCommonNavigation, useErrorDisplay } from "../lib/shared-logic";
 import { cn, typography, advancedSpacing, motion, getModernCardClasses } from "@/lib/design-system";
 import type { MemberId } from "../lib/types";
 

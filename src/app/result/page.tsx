@@ -2,13 +2,12 @@
 import React, { useCallback } from "react";
 import { useWarikanStore } from "../useWarikanStore";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { PageContainer } from "@/components/PageContainer";
-import { SectionTitle, BoldTitle } from "@/components/SectionTitle";
+import { BoldTitle } from "@/components/SectionTitle";
 import { ActionButtons } from "@/components/ActionButtons";
 import { PaymentList as EnhancedPaymentList } from "@/components/shared/PaymentItem";
 import { useResultLogic, useCommonNavigation } from "../../lib/shared-logic";
-import { cn, typography, advancedSpacing, motion, getModernCardClasses, colorSystem } from "@/lib/design-system";
+import { cn, typography, advancedSpacing, motion, getModernCardClasses } from "@/lib/design-system";
 import type { Payment, PaymentId } from "../../lib/types";
 
 /**

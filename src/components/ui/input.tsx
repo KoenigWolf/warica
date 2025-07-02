@@ -1,6 +1,6 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
-import { cn, getModernInputClasses, motion, typography } from "@/lib/design-system"
+import { cn, motion, typography } from "@/lib/design-system"
 
 /**
  * 世界最高水準モダンインプット v2.0

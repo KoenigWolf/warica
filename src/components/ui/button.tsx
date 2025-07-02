@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
-import { cn, getModernButtonClasses, motion } from "@/lib/design-system"
+import { cn, motion } from "@/lib/design-system"
 
 /**
  * 世界最高水準モダンボタン v2.0
