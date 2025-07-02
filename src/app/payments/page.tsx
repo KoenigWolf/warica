@@ -4,6 +4,7 @@ import { useWarikanStore } from "../useWarikanStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { PageContainer } from "@/components/PageContainer";
 import { BoldTitle } from "@/components/SectionTitle";
@@ -14,9 +15,10 @@ import { cn, typography, colors, spacing } from "@/lib/design-system";
 import type { MemberId } from "@/lib/types";
 
 /**
- * ハイブランド 支払いページ v3.0
+ * ハイブランド 支払いページ v4.0
  * - モノトーンデザイン
  * - ミニマルインターフェース
+ * - 支払い先メンバー選定機能
  * - 高級感のあるレイアウト
  */
 const PaymentsPage: React.FC = () => {
@@ -34,13 +36,24 @@ const PaymentsPage: React.FC = () => {
   const [payerId, setPayerId] = useState("");
   const [amount, setAmount] = useState("");
   const [memo, setMemo] = useState("");
+  const [selectedPayees, setSelectedPayees] = useState<string[]>([]);
+  const [isSplitMode, setIsSplitMode] = useState(false);
 
   // メンバーロード後に初期payerIdを設定
   React.useEffect(() => {
     if (isLoaded && members.length > 0 && !payerId) {
       setPayerId(members[0].id);
+      // 全メンバーを初期選択（支払者以外）
+      setSelectedPayees(members.filter(m => m.id !== members[0].id).map(m => m.id));
     }
   }, [isLoaded, members, payerId]);
+
+  // 支払者変更時に選択メンバーを更新
+  React.useEffect(() => {
+    if (payerId && members.length > 0) {
+      setSelectedPayees(members.filter(m => m.id !== payerId).map(m => m.id));
+    }
+  }, [payerId, members]);
 
   // 支払い追加ロジック
   const handleAdd = useCallback(() => {
@@ -49,26 +62,64 @@ const PaymentsPage: React.FC = () => {
       return;
     }
 
-    addPayment(payerId as MemberId, validAmount, memo || undefined);
+    if (isSplitMode && selectedPayees.length > 0) {
+      // 割り勘モード：選択されたメンバーで分割
+      const totalPayees = selectedPayees.length;
+      const baseAmount = Math.floor(validAmount / totalPayees);
+      let remainder = validAmount - baseAmount * totalPayees;
+
+      selectedPayees.forEach((payeeId, index) => {
+        const shareAmount = baseAmount + (remainder > 0 ? 1 : 0);
+        const payeeName = members.find(m => m.id === payeeId)?.name || 'Unknown';
+        const splitMemo = `${memo ? memo + ' ' : ''}(${payeeName}'s share)`;
+        
+        addPayment(payerId as MemberId, shareAmount, splitMemo);
+        
+        if (remainder > 0) remainder--;
+      });
+    } else {
+      // 通常モード：全額を一つの支払いとして記録
+      addPayment(payerId as MemberId, validAmount, memo || undefined);
+    }
+
     setAmount("");
     setMemo("");
-  }, [payerId, amount, memo, addPayment]);
+  }, [payerId, amount, memo, isSplitMode, selectedPayees, members, addPayment]);
 
   // 結果ページへの進行
   const handleGoToResults = useCallback(() => {
     navigation.goToResults();
   }, [navigation]);
 
+  // メンバー選択の切り替え
+  const handlePayeeToggle = useCallback((memberId: string, checked: boolean) => {
+    setSelectedPayees(prev => 
+      checked 
+        ? [...prev, memberId]
+        : prev.filter(id => id !== memberId)
+    );
+  }, []);
+
+  // 全選択/全解除
+  const handleSelectAll = useCallback(() => {
+    const availableMembers = members.filter(m => m.id !== payerId);
+    const allSelected = availableMembers.length === selectedPayees.length;
+    setSelectedPayees(allSelected ? [] : availableMembers.map(m => m.id));
+  }, [members, payerId, selectedPayees]);
+
   // 追加ボタンの有効性チェック
   const canAdd = !!(
     payerId &&
     amount &&
     !isNaN(Number(amount)) &&
-    Number(amount) > 0
+    Number(amount) > 0 &&
+    (!isSplitMode || selectedPayees.length > 0)
   );
 
   // 結果ページに進行可能かチェック
   const canProceedToResults = isLoaded && payments.length > 0;
+
+  const availablePayees = members.filter(m => m.id !== payerId);
 
   return (
     <PageContainer>
@@ -107,13 +158,13 @@ const PaymentsPage: React.FC = () => {
           <h3 className={cn(typography.label)}>
             Recorded Payments
           </h3>
-                     <span className={cn(
-             'px-3 py-1 text-xs font-medium border',
-             colors.surface.secondary,
-             colors.text.tertiary
-           )}>
-             {isLoaded ? payments.length : 0}
-           </span>
+          <span className={cn(
+            'px-3 py-1 text-xs font-medium border',
+            colors.surface.secondary,
+            colors.text.tertiary
+          )}>
+            {isLoaded ? payments.length : 0}
+          </span>
         </div>
         
         <PaymentList
@@ -134,6 +185,7 @@ const PaymentsPage: React.FC = () => {
         </h3>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {/* 支払者選択 */}
           <div className={spacing.tight}>
             <Label htmlFor="payment-member" className={cn(typography.label, 'mb-3 block')}>
               Payer
@@ -163,6 +215,7 @@ const PaymentsPage: React.FC = () => {
             </Select>
           </div>
 
+          {/* 金額入力 */}
           <div className={spacing.tight}>
             <Label htmlFor="payment-amount" className={cn(typography.label, 'mb-3 block')}>
               Amount
@@ -177,6 +230,7 @@ const PaymentsPage: React.FC = () => {
             />
           </div>
 
+          {/* 説明入力 */}
           <div className={cn(spacing.tight, 'sm:col-span-2')}>
             <Label htmlFor="payment-description" className={cn(typography.label, 'mb-3 block')}>
               Description
@@ -190,6 +244,82 @@ const PaymentsPage: React.FC = () => {
             />
           </div>
 
+          {/* 割り勘モード切り替え */}
+          <div className={cn(spacing.tight, 'sm:col-span-2')}>
+            <div className="flex items-center gap-3">
+              <Checkbox
+                id="split-mode"
+                checked={isSplitMode}
+                onCheckedChange={(checked) => setIsSplitMode(checked === true)}
+              />
+              <Label htmlFor="split-mode" className={cn(typography.body.base, 'font-light cursor-pointer')}>
+                Split payment among selected members
+              </Label>
+            </div>
+          </div>
+
+          {/* 支払い先メンバー選択（割り勘モード時のみ表示） */}
+          {isSplitMode && availablePayees.length > 0 && (
+            <div className={cn(spacing.tight, 'sm:col-span-2')}>
+              <div className="flex items-center justify-between mb-4">
+                <Label className={cn(typography.label)}>
+                  Split Among Members
+                </Label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleSelectAll}
+                  className="h-auto p-1 font-light text-xs"
+                >
+                  {selectedPayees.length === availablePayees.length ? 'Deselect All' : 'Select All'}
+                </Button>
+              </div>
+              
+              <div className={cn(
+                colors.surface.secondary,
+                'border p-4 max-h-48 overflow-y-auto'
+              )}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {availablePayees.map((member) => (
+                    <div key={member.id} className="flex items-center gap-3">
+                      <Checkbox
+                        id={`payee-${member.id}`}
+                        checked={selectedPayees.includes(member.id)}
+                        onCheckedChange={(checked) => handlePayeeToggle(member.id, checked as boolean)}
+                      />
+                      <Label 
+                        htmlFor={`payee-${member.id}`}
+                        className={cn(typography.body.small, 'font-light cursor-pointer flex items-center gap-2')}
+                      >
+                        <div className={cn(
+                          'w-6 h-6 border border-border flex items-center justify-center text-xs font-medium',
+                          colors.text.secondary
+                        )}>
+                          {member.name.charAt(0).toUpperCase()}
+                        </div>
+                        {member.name}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+                
+                {selectedPayees.length > 0 && (
+                  <div className="mt-4 pt-3 border-t">
+                    <p className={cn(typography.caption, colors.text.tertiary)}>
+                      {selectedPayees.length} member{selectedPayees.length !== 1 ? 's' : ''} selected
+                      {amount && !isNaN(Number(amount)) && Number(amount) > 0 && (
+                        <span className="ml-2">
+                          (≈ ¥{Math.floor(Number(amount) / selectedPayees.length)} per person)
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* 追加ボタン */}
           <div className="sm:col-span-2">
             <Button
               onClick={handleAdd}
@@ -197,7 +327,7 @@ const PaymentsPage: React.FC = () => {
               size="lg"
               className="w-full h-12 font-light tracking-wide"
             >
-              Add Payment
+              {isSplitMode ? 'Add Split Payment' : 'Add Payment'}
             </Button>
           </div>
         </div>
