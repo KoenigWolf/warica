@@ -60,11 +60,12 @@ const PaymentsPage: React.FC = () => {
     let amari = validAmount - base * payees.length;
     payees.forEach((payeeId) => {
       const share = base + (amari > 0 ? 1 : 0);
-      addPayment(
-        payerId,
-        share,
-        `[${members.find(m => m.id === payeeId)?.name}]${memo ? " " + memo : ""}`
-      );
+              addPayment(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          payerId as any,
+          share,
+          `[${members.find(m => m.id === payeeId)?.name}]${memo ? " " + memo : ""}`
+        );
       if (amari > 0) amari--;
     });
 

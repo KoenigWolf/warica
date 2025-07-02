@@ -1,112 +1,50 @@
 "use client";
 import React, { useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useWarikanStore } from "../useWarikanStore";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { PageContainer } from "@/components/PageContainer";
 import { SectionTitle } from "@/components/SectionTitle";
 import { ActionButtons } from "@/components/ActionButtons";
-import { useWarikanStore, type Member, type Payment } from "../useWarikanStore";
+import { calculateMemberBalances, calculateMinimalSettlements } from "../../lib/calculations";
+import type { Member, Payment, Settlement, MemberId, PositiveAmount } from "../../lib/types";
 
 /**
- * 最小送金リスト用型
- */
-type Settlement = {
-  from: string;
-  to: string;
-  amount: number;
-};
-
-/* ===============================
-  計算ユーティリティ
-=============================== */
-
-/**
- * 各メンバーの収支計算（+は受け取り、-は支払い）
- */
-function calculateBalances(
-  members: Member[],
-  payments: Payment[]
-): Record<string, number> {
-  if (members.length === 0) return {};
-  const total = payments.reduce((sum, p) => sum + p.amount, 0);
-  const perPerson = Math.floor(total / members.length);
-  const paidMap: Record<string, number> = {};
-  members.forEach((m) => (paidMap[m.id] = 0));
-  payments.forEach((p) => {
-    paidMap[p.payerId] += p.amount;
-  });
-  const balances: Record<string, number> = {};
-  members.forEach((m) => {
-    balances[m.id] = paidMap[m.id] - perPerson;
-  });
-  // 端数を先頭から順に引く
-  let amari = total - perPerson * members.length;
-  for (let i = 0; amari > 0; i++, amari--) {
-    balances[members[i % members.length].id]--;
-  }
-  return balances;
-}
-
-/**
- * 最小送金リストをグリーディ法で生成
- */
-function calculateMinimalSettlements(
-  balances: Record<string, number>,
-  members: Member[]
-): Settlement[] {
-  const plus = members
-    .filter((m) => balances[m.id] > 0)
-    .map((m) => ({ id: m.id, name: m.name, amount: balances[m.id] }));
-  const minus = members
-    .filter((m) => balances[m.id] < 0)
-    .map((m) => ({ id: m.id, name: m.name, amount: -balances[m.id] }));
-  const settlements: Settlement[] = [];
-  let i = 0, j = 0;
-  while (i < minus.length && j < plus.length) {
-    const pay = Math.min(minus[i].amount, plus[j].amount);
-    settlements.push({
-      from: minus[i].name,
-      to: plus[j].name,
-      amount: pay,
-    });
-    minus[i].amount -= pay;
-    plus[j].amount -= pay;
-    if (minus[i].amount === 0) i++;
-    if (plus[j].amount === 0) j++;
-  }
-  return settlements;
-}
-
-/* ===============================
-  コンポーネント
-=============================== */
-
-/**
- * 割り勘計算結果ページ
- * - 収支・最小送金リスト・全リセット
+ * 割り勘結果ページ
+ * - 各メンバーの収支計算と最小送金リストを表示
+ * - 支払い一覧の編集機能
+ * - リファクタリング済み：型安全性、パフォーマンス最適化
  */
 const ResultPage: React.FC = () => {
   const router = useRouter();
   const {
     state: { eventName, members, payments },
-    resetAll,
     editPayment,
     removePayment,
+    resetAll,
   } = useWarikanStore();
 
-  // 各メンバー収支
-  const balances = useMemo(
-    () => calculateBalances(members, payments),
+  // メンバー残高計算（メモ化）
+  const memberBalances = useMemo(() => 
+    calculateMemberBalances(members, payments),
     [members, payments]
   );
 
-  // 最小送金リスト
-  const settlements = useMemo(
-    () => calculateMinimalSettlements(balances, members),
-    [balances, members]
+  // レガシー形式の残高マップ（互換性のため）
+  const balances = useMemo(() => 
+    Object.fromEntries(
+      memberBalances.map(balance => [balance.memberId, balance.balance])
+    ),
+    [memberBalances]
+  );
+
+  // 最小送金リスト計算（メモ化）
+  const settlements = useMemo(() => 
+    calculateMinimalSettlements(memberBalances),
+    [memberBalances]
   );
 
   // 全リセット・トップ遷移
@@ -119,9 +57,14 @@ const ResultPage: React.FC = () => {
     <PageContainer>
       <SectionTitle>割り勘結果</SectionTitle>
       <Header eventName={eventName} />
-      <PaymentList payments={payments} members={members} editPayment={editPayment} removePayment={removePayment} />
-      <BalanceList members={members} balances={balances} />
-      <SettlementList settlements={settlements} />
+      <PaymentList 
+        payments={payments as Payment[]} 
+        members={members as Member[]} 
+        editPayment={editPayment as (id: string, update: Partial<Pick<Payment, 'payerId' | 'amount' | 'memo'>>) => void} 
+        removePayment={removePayment as (id: string) => void} 
+      />
+      <BalanceList members={members as Member[]} balances={balances} />
+      <SettlementList settlements={settlements as Settlement[]} />
       <Button
         className="w-full mt-8 mb-4 text-base py-3"
         onClick={handleReset}
@@ -232,31 +175,52 @@ const SettlementList: React.FC<{
 type PaymentListProps = {
   payments: Payment[];
   members: Member[];
-  editPayment: (id: string, update: Partial<Omit<Payment, 'id'>>) => void;
+  editPayment: (id: string, update: Partial<Pick<Payment, 'payerId' | 'amount' | 'memo'>>) => void;
   removePayment: (id: string) => void;
 };
-const PaymentList: React.FC<PaymentListProps> = ({ payments, members, editPayment, removePayment }) => {
+
+const PaymentList: React.FC<PaymentListProps> = ({ 
+  payments, 
+  members, 
+  editPayment, 
+  removePayment 
+}) => {
   const [editId, setEditId] = React.useState<string | null>(null);
-  const [form, setForm] = React.useState<{ payerId: string; amount: string; memo: string }>({ payerId: "", amount: "", memo: "" });
+  const [form, setForm] = React.useState<{ 
+    payerId: string; 
+    amount: string; 
+    memo: string 
+  }>({ payerId: "", amount: "", memo: "" });
 
   // 編集開始
   const handleEditStart = (p: Payment) => {
     setEditId(p.id);
-    setForm({ payerId: p.payerId, amount: String(p.amount), memo: p.memo || "" });
+    setForm({ 
+      payerId: p.payerId, 
+      amount: String(p.amount), 
+      memo: p.memo || "" 
+    });
   };
+
   // 編集キャンセル
   const handleEditCancel = () => {
     setEditId(null);
     setForm({ payerId: "", amount: "", memo: "" });
   };
+
   // 編集保存
   const handleEditSave = (id: string) => {
     if (!form.payerId || !form.amount || isNaN(Number(form.amount)) || Number(form.amount) <= 0) return;
-    editPayment(id, { payerId: form.payerId, amount: Number(form.amount), memo: form.memo });
+    editPayment(id, { 
+      payerId: form.payerId as MemberId, 
+      amount: Number(form.amount) as PositiveAmount, 
+      memo: form.memo 
+    });
     setEditId(null);
   };
 
   if (payments.length === 0) return null;
+
   return (
     <section className="mb-8" aria-label="支払い一覧">
       <Label className="font-semibold mb-2 text-base">支払い一覧（編集可）</Label>
@@ -265,7 +229,10 @@ const PaymentList: React.FC<PaymentListProps> = ({ payments, members, editPaymen
           <li key={p.id} className="flex items-center gap-2 mb-1 border-b py-1">
             {editId === p.id ? (
               <>
-                <Select value={form.payerId} onValueChange={v => setForm(f => ({ ...f, payerId: v }))}>
+                <Select 
+                  value={form.payerId} 
+                  onValueChange={v => setForm(f => ({ ...f, payerId: v }))}
+                >
                   <SelectTrigger className="min-w-[90px]">
                     <SelectValue placeholder="支払者" />
                   </SelectTrigger>
@@ -290,17 +257,48 @@ const PaymentList: React.FC<PaymentListProps> = ({ payments, members, editPaymen
                   aria-label="メモ"
                   placeholder="メモ（任意）"
                 />
-                <Button size="sm" variant="secondary" onClick={() => handleEditSave(p.id)} aria-label="保存">保存</Button>
-                <Button size="sm" variant="ghost" onClick={handleEditCancel} aria-label="キャンセル">キャンセル</Button>
+                <Button 
+                  size="sm" 
+                  variant="secondary" 
+                  onClick={() => handleEditSave(p.id)} 
+                  aria-label="保存"
+                >
+                  保存
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  onClick={handleEditCancel} 
+                  aria-label="キャンセル"
+                >
+                  キャンセル
+                </Button>
               </>
             ) : (
               <>
                 <span className="flex-1">
                   {members.find(m => m.id === p.payerId)?.name || "?"} が {p.amount}円
-                  {p.memo && <span className="text-xs text-gray-500 ml-2">({p.memo})</span>}
+                  {p.memo && (
+                    <span className="text-xs text-gray-500 ml-2">({p.memo})</span>
+                  )}
                 </span>
-                <Button size="sm" variant="ghost" onClick={() => handleEditStart(p)} aria-label="編集">編集</Button>
-                <Button size="sm" variant="ghost" className="text-red-500" onClick={() => removePayment(p.id)} aria-label="削除">削除</Button>
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  onClick={() => handleEditStart(p)} 
+                  aria-label="編集"
+                >
+                  編集
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  className="text-red-500" 
+                  onClick={() => removePayment(p.id)} 
+                  aria-label="削除"
+                >
+                  削除
+                </Button>
               </>
             )}
           </li>
