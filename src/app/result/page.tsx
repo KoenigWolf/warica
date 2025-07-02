@@ -8,7 +8,7 @@ import { SectionTitle } from "@/components/SectionTitle";
 import { ActionButtons } from "@/components/ActionButtons";
 import { PaymentList as EnhancedPaymentList } from "@/components/shared/PaymentItem";
 import { useResultLogic, useCommonNavigation, useButtonState } from "../../lib/shared-logic";
-import type { Payment } from "../../lib/types";
+import type { Payment, PaymentId } from "../../lib/types";
 
 /**
  * 割り勘結果ページ
@@ -34,7 +34,7 @@ const ResultPage: React.FC = () => {
 
   // 編集・削除ハンドラー
   const handleEditPayment = useCallback((payment: Payment) => {
-    editPayment(payment.id as unknown as any, {
+    editPayment(payment.id, {
       payerId: payment.payerId,
       amount: payment.amount,
       memo: payment.memo
@@ -42,7 +42,7 @@ const ResultPage: React.FC = () => {
   }, [editPayment]);
 
   const handleRemovePayment = useCallback((id: unknown) => {
-    removePayment(id as unknown as any);
+    removePayment(id as PaymentId);
   }, [removePayment]);
 
   // リセットボタン状態
