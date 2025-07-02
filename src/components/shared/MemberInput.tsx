@@ -1,14 +1,14 @@
 import React, { useState, useCallback } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { cn, typography } from "../../lib/design-system";
+import { cn, typography, colors, spacing } from "../../lib/design-system";
 import type { Member, MemberId } from "../../lib/types";
 
 /**
- * メンバー入力コンポーネント v2.0
- * - プレミアムデザイン適用
- * - スマホ最適化とタッチ操作改善
- * - 入力問題の修正
+ * ハイブランド メンバー入力コンポーネント v3.0
+ * - モノトーンデザイン
+ * - ミニマルインターフェース
+ * - 高級感のあるタイポグラフィ
  */
 
 export interface MemberInputProps {
@@ -93,12 +93,15 @@ export const MemberInput: React.FC<MemberInputProps> = ({
   }, [handleAdd, handleEditSave]);
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn(spacing.component, className)}>
       {/* エラー表示 */}
       {errors.length > 0 && (
-        <div className="p-3 bg-red-50/80 backdrop-blur-sm border border-red-200/50 rounded-xl text-red-700">
+        <div className={cn(
+          'p-4 border-l-2 border-destructive',
+          colors.surface.secondary
+        )}>
           {errors.map((error, index) => (
-            <div key={index} className={cn(typography.body.small, 'leading-relaxed')}>
+            <div key={index} className={cn(typography.caption, 'text-destructive')}>
               {error}
             </div>
           ))}
@@ -106,40 +109,39 @@ export const MemberInput: React.FC<MemberInputProps> = ({
       )}
 
       {/* 新規メンバー追加フォーム */}
-      <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-gray-100/50">
+      <div className={cn(colors.surface.secondary, 'p-4 border')}>
         <div className="flex gap-3">
           <Input
             value={newMemberName}
             onChange={handleNewMemberNameChange}
             onKeyDown={(e) => handleKeyDown(e, 'add')}
-            placeholder="メンバー名を入力"
+            placeholder="Enter member name"
             disabled={disabled}
-            className="flex-1 h-12 text-base"
+            className="flex-1 h-12 text-base font-light"
             autoComplete="off"
           />
           <Button
             onClick={handleAdd}
             disabled={!newMemberName.trim() || disabled}
             type="button"
-            size="lg"
-            variant="success"
-            className="min-w-[80px] h-12"
+            size="default"
+            className="min-w-[80px] h-12 font-light tracking-wide"
           >
-            追加
+            Add
           </Button>
         </div>
       </div>
 
       {/* メンバー一覧 */}
-      <div className="space-y-3">
+      <div className={spacing.element}>
         {members.length === 0 && (
           <div className={cn(
-            'text-center py-8 px-4 rounded-xl',
-            'bg-gray-50/80 backdrop-blur-sm border-2 border-dashed border-gray-200/50'
+            'text-center py-12 px-6',
+            colors.surface.secondary,
+            'border-2 border-dashed'
           )}>
-            <div className="text-4xl mb-2">👋</div>
-            <p className={cn(typography.body.base, 'text-gray-500')}>
-              メンバーを追加してください
+            <p className={cn(typography.body.base, colors.text.secondary)}>
+              No members added yet
             </p>
           </div>
         )}
@@ -148,9 +150,9 @@ export const MemberInput: React.FC<MemberInputProps> = ({
           <div 
             key={member.id} 
             className={cn(
-              'bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-gray-100/50',
-              'flex items-center gap-3',
-              'hover:bg-white/70 transition-all duration-200'
+              colors.surface.elevated,
+              'p-4 flex items-center gap-4',
+              'hover:bg-muted/20 transition-colors duration-200'
             )}
           >
             {editId === member.id ? (
@@ -160,22 +162,22 @@ export const MemberInput: React.FC<MemberInputProps> = ({
                   value={editName}
                   onChange={handleEditNameChange}
                   onKeyDown={(e) => handleKeyDown(e, 'save')}
-                  placeholder="新しい名前"
+                  placeholder="Enter new name"
                   disabled={disabled}
-                  className="flex-1 h-11 text-base"
+                  className="flex-1 h-11 text-base font-light"
                   autoFocus
                   autoComplete="off"
                 />
                 <div className="flex gap-2">
                   <Button
-                    variant="success"
+                    variant="default"
                     size="sm"
                     onClick={handleEditSave}
                     disabled={!editName.trim() || disabled}
                     type="button"
-                    className="min-w-[60px] h-11"
+                    className="min-w-[60px] h-11 font-light"
                   >
-                    保存
+                    Save
                   </Button>
                   <Button
                     variant="ghost"
@@ -183,9 +185,9 @@ export const MemberInput: React.FC<MemberInputProps> = ({
                     onClick={handleEditCancel}
                     disabled={disabled}
                     type="button"
-                    className="min-w-[60px] h-11"
+                    className="min-w-[60px] h-11 font-light"
                   >
-                    キャンセル
+                    Cancel
                   </Button>
                 </div>
               </>
@@ -193,14 +195,15 @@ export const MemberInput: React.FC<MemberInputProps> = ({
               // 表示モード
               <>
                 <div className={cn(
-                  'w-12 h-12 rounded-full flex items-center justify-center text-lg font-medium',
-                  'bg-gradient-to-br from-blue-500 to-indigo-500 text-white flex-shrink-0'
+                  'w-10 h-10 border border-border flex items-center justify-center text-sm font-medium',
+                  colors.text.secondary,
+                  'flex-shrink-0'
                 )}>
-                  {member.name.charAt(0)}
+                  {member.name.charAt(0).toUpperCase()}
                 </div>
                 <span className={cn(
                   typography.body.base,
-                  'flex-1 font-medium text-gray-800 min-w-0'
+                  'flex-1 font-light min-w-0'
                 )}>
                   {member.name}
                 </span>
@@ -211,9 +214,9 @@ export const MemberInput: React.FC<MemberInputProps> = ({
                     onClick={() => handleEditStart(member)}
                     disabled={disabled}
                     type="button"
-                    className="text-blue-600 hover:text-blue-800 min-w-[50px] h-10"
+                    className="text-muted-foreground hover:text-foreground min-w-[50px] h-10 font-light"
                   >
-                    編集
+                    Edit
                   </Button>
                   <Button
                     variant="ghost"
@@ -221,9 +224,9 @@ export const MemberInput: React.FC<MemberInputProps> = ({
                     onClick={() => onRemoveMember(member.id)}
                     disabled={disabled}
                     type="button"
-                    className="text-red-500 hover:text-red-700 min-w-[50px] h-10"
+                    className="text-destructive hover:text-destructive/80 min-w-[50px] h-10 font-light"
                   >
-                    削除
+                    Remove
                   </Button>
                 </div>
               </>
@@ -234,13 +237,14 @@ export const MemberInput: React.FC<MemberInputProps> = ({
 
       {/* メンバー数表示 */}
       <div className={cn(
-        'text-center p-3 bg-gray-50/80 backdrop-blur-sm rounded-lg',
-        'border border-gray-200/50'
+        'text-center p-3',
+        colors.surface.secondary,
+        'border'
       )}>
-        <p className={cn(typography.body.small, 'text-gray-600')}>
+        <p className={cn(typography.caption)}>
           {members.length === 0 
-            ? "メンバーを追加してください（最低2人必要）"
-            : `${members.length}人のメンバーが登録されています`
+            ? "Add members to continue (minimum 2 required)"
+            : `${members.length} member${members.length !== 1 ? 's' : ''} registered`
           }
         </p>
       </div>

@@ -10,32 +10,46 @@ import {
 } from '../lib/calculations';
 
 /**
- * 割り勘アプリ用状態管理カスタムフック
+ * 割り勘アプリ用状態管理カスタムフック v3.0
+ * - hydrationエラー修正
  * - 型安全性とバリデーションを強化
  * - エラーハンドリングとパフォーマンス最適化
- * - テスト容易性と保守性を向上
  */
+
+// 初期状態（サーバー・クライアント統一）
+const INITIAL_STATE: WarikanState = {
+  eventName: "",
+  members: [],
+  payments: [],
+  lastUpdated: new Date(),
+};
+
 export function useWarikanStore() {
-  // 初期状態の読み込み
-  const [state, setState] = useState<WarikanState>(() => {
-    const result = loadFromStorage();
-    if (result.isValid && result.data) {
-      return result.data;
-    }
-    console.warn('ストレージからの読み込みに失敗:', result.errors);
-    return {
-      eventName: "",
-      members: [],
-      payments: [],
-      lastUpdated: new Date(),
-    };
-  });
+  // 統一された初期状態
+  const [state, setState] = useState<WarikanState>(INITIAL_STATE);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // エラー状態の管理
   const [errors, setErrors] = useState<readonly string[]>([]);
 
+  // クライアントサイドでのみストレージから読み込み
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !isLoaded) {
+      const result = loadFromStorage();
+      if (result.isValid && result.data) {
+        setState(result.data);
+      } else if (result.errors.length > 0) {
+        console.warn('ストレージからの読み込みに失敗:', result.errors);
+      }
+      setIsLoaded(true);
+    }
+  }, [isLoaded]);
+
   // 状態保存副作用（デバウンス付き）
   useEffect(() => {
+    // 初期読み込み完了後のみ保存
+    if (!isLoaded) return;
+
     const timeoutId = setTimeout(() => {
       const result = saveToStorage(state);
       if (!result.isValid) {
@@ -47,7 +61,7 @@ export function useWarikanStore() {
     }, 500); // 500ms デバウンス
 
     return () => clearTimeout(timeoutId);
-  }, [state]);
+  }, [state, isLoaded]);
 
   // 計算キャッシュクリア
   const clearCache = useCallback(() => {
@@ -57,8 +71,7 @@ export function useWarikanStore() {
   /** イベント名を設定 */
   const setEventName = useCallback((name: string) => {
     // 入力中はバリデーションを行わず、状態のみ更新
-    // バリデーションは useSetupLogic で別途実行
-    setErrors([]); // 入力中のエラーはクリア
+    setErrors([]);
     setState((prev) => ({ 
       ...prev, 
       eventName: name,
@@ -202,93 +215,57 @@ export function useWarikanStore() {
     });
   }, []);
 
-  /** 支払い編集 */
-  const editPayment = useCallback((
-    id: PaymentId, 
-    update: Partial<Pick<Payment, 'payerId' | 'amount' | 'memo'>>
-  ) => {
-    setState((prev) => {
-      const processedUpdate = { ...update };
-      
-      if (update.amount !== undefined) {
-        const validation = validateAmount(update.amount);
-        if (!validation.isValid) {
-          setErrors(validation.errors);
-          return prev;
-        }
-
-        const positiveAmount = createSafeAmount(validation.data!);
-        if (!positiveAmount) {
-          setErrors(['正の金額を入力してください']);
-          return prev;
-        }
-        processedUpdate.amount = positiveAmount;
-      }
-
-      setErrors([]);
-      clearCalculationCache();
-
-      return {
-        ...prev,
-        payments: prev.payments.map((p) =>
-          p.id === id ? { ...p, ...processedUpdate, updatedAt: new Date() } : p
-        ),
-        lastUpdated: new Date(),
-      };
-    });
-  }, []);
-
   /** 全データリセット */
   const resetAll = useCallback(() => {
-    const result = clearStorage();
-    if (!result.isValid) {
-      setErrors(result.errors);
-      return;
-    }
-
     clearCalculationCache();
     setErrors([]);
-    
-    setState({
-      eventName: "",
-      members: [],
-      payments: [],
-      lastUpdated: new Date(),
-    });
+    setState(INITIAL_STATE);
+    clearStorage();
   }, []);
 
-  // メモ化された派生状態
-  const derivedState = useMemo(() => ({
-    memberCount: state.members.length,
-    paymentCount: state.payments.length,
-    totalAmount: state.payments.reduce((sum, p) => sum + p.amount, 0),
-    hasData: state.members.length > 0 || state.payments.length > 0,
-    
-    // 高度な計算結果
-    balances: calculateMemberBalances(state.members, state.payments),
-    settlements: calculateMinimalSettlements(
-      calculateMemberBalances(state.members, state.payments)
-    ),
-  }), [state.members, state.payments]);
+  /** メモ化された計算結果 */
+  const calculations = useMemo(() => {
+    if (state.members.length === 0 || state.payments.length === 0) {
+      return {
+        balances: [],
+        settlements: [],
+        totalAmount: 0,
+        perPersonAmount: 0,
+      };
+    }
+
+    try {
+      const balances = calculateMemberBalances(state.members, state.payments);
+      const settlements = calculateMinimalSettlements(balances);
+      const totalAmount = state.payments.reduce((sum, p) => sum + p.amount, 0);
+      const perPersonAmount = totalAmount / state.members.length;
+
+      return { balances, settlements, totalAmount, perPersonAmount };
+    } catch (error) {
+      console.error('計算エラー:', error);
+      setErrors(['計算中にエラーが発生しました']);
+      return {
+        balances: [],
+        settlements: [],
+        totalAmount: 0,
+        perPersonAmount: 0,
+      };
+    }
+  }, [state.members, state.payments]);
 
   return {
-    // 基本状態
     state,
     errors,
-    derived: derivedState,
-    
-    // アクション
+    calculations,
+    isLoaded, // ローディング状態を追加
+    // Actions
     setEventName,
     addMember,
     editMember,
     removeMember,
     addPayment,
     removePayment,
-    editPayment,
     resetAll,
     clearCache,
-    
-    // 高度な用途（テスト等）
-    setState,
   };
 }

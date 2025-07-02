@@ -1,12 +1,13 @@
 "use client";
 
 import React from 'react';
-import { cn, typography } from "@/lib/design-system";
+import { cn, typography, colors } from "@/lib/design-system";
 
 /**
- * セクションタイトルコンポーネント v2.0
- * - シンプルで読みやすいデザイン
- * - スマホファースト対応
+ * ハイブランド セクションタイトル v3.0
+ * - モノトーンカラーパレット
+ * - ミニマルタイポグラフィ
+ * - エレガントなスペーシング
  */
 
 interface SectionTitleProps {
@@ -31,7 +32,7 @@ export const SectionTitle: React.FC<SectionTitleProps> = ({
     <Tag className={cn(
       typography.heading[typographyKey],
       spacingClass,
-      'text-gray-800',
+      colors.text.primary,
       className
     )}>
       {children}
@@ -39,11 +40,12 @@ export const SectionTitle: React.FC<SectionTitleProps> = ({
   );
 };
 
-// スペシャライズされたコンポーネント
+// ハイブランド専用コンポーネント
 export const HeroTitle: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
   <h1 className={cn(
-    typography.heading.hero,
-    'text-gray-800 mb-4',
+    typography.display.base,
+    colors.text.primary,
+    'mb-6',
     className
   )}>
     {children}
@@ -53,7 +55,8 @@ export const HeroTitle: React.FC<{ children: React.ReactNode; className?: string
 export const BoldTitle: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
   <h2 className={cn(
     typography.heading.h1,
-    'text-gray-800 mb-3',
+    colors.text.primary,
+    'mb-4',
     className
   )}>
     {children}

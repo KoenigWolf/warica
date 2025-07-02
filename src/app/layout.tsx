@@ -1,15 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-// Google Fonts: Geist Sans / Mono をCSS変数として定義
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Google Fonts: Inter（ハイブランド系で使用される高級感のあるフォント）
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
 });
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500"],
 });
 
 // ビューポート設定（スマホ最適化）
@@ -18,26 +23,26 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
-  themeColor: '#3B82F6',
-  colorScheme: 'light',
+  themeColor: '#000000',
+  colorScheme: 'light dark',
 };
 
-// サイト全体のメタデータ（SEO・OGPにも利用可）
+// サイト全体のメタデータ（ミニマルで高級感）
 export const metadata: Metadata = {
-  title: "warican - シンプル割り勘アプリ",
-  description: "イベント名・メンバー・支払いを入力するだけで、簡単に割り勘計算！",
-  applicationName: "シンプル割り勘アプリ",
-  authors: [{ name: "WarikanApp Project" }],
+  title: "WARICAN",
+  description: "Minimalist bill splitting application",
+  applicationName: "WARICAN",
+  authors: [{ name: "WARICAN" }],
   keywords: [
-    "割り勘", "Warikan", "精算", "飲み会", "グループ", "計算", "Webアプリ", "シンプル", "無料"
+    "bill splitting", "warikan", "minimalist", "app", "calculator"
   ],
   openGraph: {
-    title: "シンプル割り勘アプリ",
-    description: "すぐに始められる割り勘計算。誰でも手軽に、正確に。ローカル保存で個人利用にも安心。",
+    title: "WARICAN",
+    description: "Minimalist bill splitting application",
     type: "website",
     locale: "ja_JP",
-    url: "https://your-domain.example", // 公開URLに応じて変更
-    siteName: "シンプル割り勘アプリ",
+    url: "https://warica.vercel.app",
+    siteName: "WARICAN",
   },
   robots: "index,follow",
   formatDetection: {
@@ -56,7 +61,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 text-gray-900`}
+        className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-white text-gray-900 font-sans`}
       >
         {children}
       </body>

@@ -2,14 +2,15 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { cn, typography } from '@/lib/design-system';
+import { cn, typography, colors, spacing } from '@/lib/design-system';
 import { formatCompactAmount } from '@/lib/utils';
 import type { Payment, Member, PaymentId } from '@/lib/types';
 
 /**
- * 支払い一覧コンポーネント
- * - シンプルで見やすいデザイン
- * - スマホ最適化
+ * ハイブランド 支払い一覧コンポーネント v3.0
+ * - モノトーンデザイン
+ * - ミニマルインターフェース
+ * - エレガントな表示
  */
 interface PaymentListProps {
   payments: readonly Payment[];
@@ -22,19 +23,24 @@ export const PaymentList: React.FC<PaymentListProps> = ({
   payments,
   members,
   onRemovePayment,
-  emptyMessage = '支払いが登録されていません',
+  emptyMessage = 'No payments recorded',
 }) => {
   if (payments.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-400">
-        <div className="text-6xl mb-4">💳</div>
-        <p className="text-lg">{emptyMessage}</p>
+      <div className={cn(
+        'text-center py-12',
+        colors.surface.secondary,
+        'border-2 border-dashed'
+      )}>
+        <p className={cn(typography.body.base, colors.text.secondary)}>
+          {emptyMessage}
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-3">
+    <div className={spacing.element}>
       {payments.map((payment) => {
         const member = members.find((m) => m.id === payment.payerId);
         if (!member) return null;
@@ -42,27 +48,33 @@ export const PaymentList: React.FC<PaymentListProps> = ({
         return (
           <div
             key={payment.id}
-            className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-gray-200/30 shadow-sm hover:bg-white/80 hover:shadow-md transition-all duration-200"
+            className={cn(
+              colors.surface.elevated,
+              'p-4 hover:bg-muted/20 transition-colors duration-200'
+            )}
           >
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-medium text-base">
-                  {member.name.charAt(0)}
+              <div className="flex items-center gap-4">
+                <div className={cn(
+                  'w-10 h-10 border border-border flex items-center justify-center font-medium text-sm',
+                  colors.text.secondary
+                )}>
+                  {member.name.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <p className={cn(typography.body.base, 'font-medium text-gray-800')}>
+                  <p className={cn(typography.body.base, 'font-light')}>
                     {member.name}
                   </p>
                   {payment.memo && (
-                    <p className={cn(typography.body.small, 'text-gray-500')}>
+                    <p className={cn(typography.caption, colors.text.tertiary)}>
                       {payment.memo}
                     </p>
                   )}
                 </div>
               </div>
               
-              <div className="flex items-center gap-3">
-                <span className={cn(typography.heading.h4, 'font-semibold text-gray-800')}>
+              <div className="flex items-center gap-4">
+                <span className={cn(typography.heading.h4, 'font-light')}>
                   {formatCompactAmount(payment.amount)}
                 </span>
                 
@@ -71,12 +83,15 @@ export const PaymentList: React.FC<PaymentListProps> = ({
                     onClick={() => onRemovePayment?.(payment.id)}
                     variant="ghost"
                     size="sm"
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50 h-10 w-10 p-0"
+                    className={cn(
+                      'text-destructive/60 hover:text-destructive hover:bg-destructive/5',
+                      'h-10 w-10 p-0 transition-colors'
+                    )}
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
-                    <span className="sr-only">削除</span>
+                    <span className="sr-only">Remove</span>
                   </Button>
                 )}
               </div>

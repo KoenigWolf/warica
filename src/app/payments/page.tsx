@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useWarikanStore } from "../useWarikanStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,12 +10,19 @@ import { BoldTitle } from "@/components/SectionTitle";
 import { ActionButtons } from "@/components/ActionButtons";
 import { PaymentList } from "@/components/shared/PaymentItem";
 import { useCommonNavigation } from "../../lib/shared-logic";
-import { cn, typography } from "@/lib/design-system";
+import { cn, typography, colors, spacing } from "@/lib/design-system";
 import type { MemberId } from "@/lib/types";
 
+/**
+ * ハイブランド 支払いページ v3.0
+ * - モノトーンデザイン
+ * - ミニマルインターフェース
+ * - 高級感のあるレイアウト
+ */
 const PaymentsPage: React.FC = () => {
   const {
     state: { members, payments },
+    isLoaded,
     addPayment,
     removePayment,
   } = useWarikanStore();
@@ -24,11 +31,18 @@ const PaymentsPage: React.FC = () => {
   const navigation = useCommonNavigation();
 
   // 入力値（ローカル状態）
-  const [payerId, setPayerId] = useState(members[0]?.id || "");
+  const [payerId, setPayerId] = useState("");
   const [amount, setAmount] = useState("");
   const [memo, setMemo] = useState("");
 
-  // 支払い追加ロジック（簡略化）
+  // メンバーロード後に初期payerIdを設定
+  React.useEffect(() => {
+    if (isLoaded && members.length > 0 && !payerId) {
+      setPayerId(members[0].id);
+    }
+  }, [isLoaded, members, payerId]);
+
+  // 支払い追加ロジック
   const handleAdd = useCallback(() => {
     const validAmount = Number(amount);
     if (!payerId || isNaN(validAmount) || validAmount <= 0) {
@@ -54,80 +68,92 @@ const PaymentsPage: React.FC = () => {
   );
 
   // 結果ページに進行可能かチェック
-  const canProceedToResults = payments.length > 0;
+  const canProceedToResults = isLoaded && payments.length > 0;
 
   return (
     <PageContainer>
-      {/* トップに戻るボタン */}
-      <div className="mb-4">
+      {/* ナビゲーション */}
+      <div className="mb-8">
         <Button
           onClick={navigation.goHome}
           variant="ghost"
           size="sm"
-          className="text-gray-600 hover:text-gray-800"
+          className={cn(colors.text.secondary, 'hover:text-foreground font-light')}
         >
-          ← ホームに戻る
+          ← Back to Home
         </Button>
       </div>
 
       {/* タイトルセクション */}
-      <section className="bg-white/70 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/20 shadow-lg mb-6 sm:mb-8">
+      <section className={cn(
+        colors.surface.elevated,
+        'p-6 sm:p-8 mb-8',
+        spacing.element
+      )}>
         <BoldTitle>
-          💸 支払い記録
+          Payments
         </BoldTitle>
-        <p className={cn(typography.body.base, 'text-gray-600 mt-2')}>
-          誰がいくら支払ったかを記録してください
+        <p className={cn(typography.body.base, colors.text.secondary, 'mt-4')}>
+          Record who paid for what expenses
         </p>
       </section>
 
       {/* 支払い一覧 */}
-      <section className="bg-white/70 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/20 shadow-lg mb-6 sm:mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className={cn(typography.heading.h3, 'text-gray-800')}>
-            📝 登録済み支払い
+      <section className={cn(
+        colors.surface.elevated,
+        'p-6 sm:p-8 mb-8'
+      )}>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className={cn(typography.label)}>
+            Recorded Payments
           </h3>
-          <span className={cn(
-            'px-3 py-1 text-sm sm:text-base font-medium rounded-full',
-            payments.length > 0 
-              ? 'bg-emerald-100 text-emerald-700'
-              : 'bg-gray-100 text-gray-500'
-          )}>
-            {payments.length}件
-          </span>
+                     <span className={cn(
+             'px-3 py-1 text-xs font-medium border',
+             colors.surface.secondary,
+             colors.text.tertiary
+           )}>
+             {isLoaded ? payments.length : 0}
+           </span>
         </div>
         
         <PaymentList
-          payments={payments}
-          members={members}
+          payments={isLoaded ? payments : []}
+          members={isLoaded ? members : []}
           onRemovePayment={removePayment}
-          emptyMessage="まだ支払いが登録されていません。下のフォームから支払いを追加しましょう。"
+          emptyMessage="No payments recorded yet. Add payments using the form below."
         />
       </section>
 
       {/* 新しい支払い追加フォーム */}
-      <section className="bg-white/70 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/20 shadow-lg mb-6 sm:mb-8">
-        <h3 className={cn(typography.heading.h3, 'text-gray-800 mb-4')}>
-          ➕ 新しい支払いを追加
+      <section className={cn(
+        colors.surface.elevated,
+        'p-6 sm:p-8 mb-8'
+      )}>
+        <h3 className={cn(typography.label, 'mb-6')}>
+          Add New Payment
         </h3>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="payment-member" className={cn(typography.body.base, 'font-medium text-gray-700')}>
-              支払った人
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className={spacing.tight}>
+            <Label htmlFor="payment-member" className={cn(typography.label, 'mb-3 block')}>
+              Payer
             </Label>
             <Select
               value={payerId}
               onValueChange={setPayerId}
             >
-              <SelectTrigger className="h-12">
-                <SelectValue placeholder="メンバーを選択" />
+              <SelectTrigger className="h-12 font-light">
+                <SelectValue placeholder="Select member" />
               </SelectTrigger>
               <SelectContent>
-                {members.map((member) => (
+                {isLoaded && members.map((member) => (
                   <SelectItem key={member.id} value={member.id}>
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-medium text-base">
-                        {member.name.charAt(0)}
+                    <div className="flex items-center gap-3">
+                      <div className={cn(
+                        'w-6 h-6 border border-border flex items-center justify-center text-xs font-medium',
+                        colors.text.secondary
+                      )}>
+                        {member.name.charAt(0).toUpperCase()}
                       </div>
                       {member.name}
                     </div>
@@ -137,9 +163,9 @@ const PaymentsPage: React.FC = () => {
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="payment-amount" className={cn(typography.body.base, 'font-medium text-gray-700')}>
-              金額
+          <div className={spacing.tight}>
+            <Label htmlFor="payment-amount" className={cn(typography.label, 'mb-3 block')}>
+              Amount
             </Label>
             <Input
               id="payment-amount"
@@ -147,20 +173,20 @@ const PaymentsPage: React.FC = () => {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="0"
-              className="h-12"
+              className="h-12 font-light"
             />
           </div>
 
-          <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="payment-description" className={cn(typography.body.base, 'font-medium text-gray-700')}>
-              内容
+          <div className={cn(spacing.tight, 'sm:col-span-2')}>
+            <Label htmlFor="payment-description" className={cn(typography.label, 'mb-3 block')}>
+              Description
             </Label>
             <Input
               id="payment-description"
               value={memo}
               onChange={(e) => setMemo(e.target.value)}
-              placeholder="例: 居酒屋代、タクシー代"
-              className="h-12"
+              placeholder="e.g. Restaurant, Taxi, Hotel"
+              className="h-12 font-light"
             />
           </div>
 
@@ -169,43 +195,45 @@ const PaymentsPage: React.FC = () => {
               onClick={handleAdd}
               disabled={!canAdd}
               size="lg"
-              variant="success"
-              className="w-full"
+              className="w-full h-12 font-light tracking-wide"
             >
-              支払いを追加
+              Add Payment
             </Button>
           </div>
         </div>
       </section>
 
       {/* 結果ページへの進行ボタン */}
-      <section className="bg-white/70 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/20 shadow-lg mb-6 sm:mb-8">
-        <div className="text-center space-y-4">
+      <section className={cn(
+        colors.surface.elevated,
+        'p-6 sm:p-8 mb-8'
+      )}>
+        <div className={cn('text-center', spacing.element)}>
           <Button
             onClick={handleGoToResults}
             disabled={!canProceedToResults}
             variant={canProceedToResults ? "default" : "secondary"}
             size="lg"
-            className="w-full sm:w-auto min-w-48"
+            className="w-full sm:w-auto min-w-48 h-12 font-light tracking-wide"
           >
             {canProceedToResults ? (
-              <span className="flex items-center gap-2">
-                割り勘結果を見る ✨
+              <span className="flex items-center gap-3">
+                Calculate Results
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </span>
             ) : (
-              "支払いを追加してください"
+              "Add payments to continue"
             )}
           </Button>
           
           {!canProceedToResults && (
             <p className={cn(
-              typography.body.small,
-              'text-gray-500'
+              typography.caption,
+              'mt-4'
             )}>
-              最低1つの支払いが必要です
+              At least one payment is required
             </p>
           )}
         </div>

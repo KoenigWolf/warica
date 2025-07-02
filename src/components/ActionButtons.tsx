@@ -2,14 +2,14 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { useWarikanStore } from "../app/useWarikanStore";
 import { useCommonNavigation } from "../lib/shared-logic";
-import { cn } from "@/lib/design-system";
+import { cn, colors, typography } from "@/lib/design-system";
 import { ROUTES } from "../lib/routes";
 
 /**
- * アクションボタンコンポーネント
- * - 共通ナビゲーションライブラリで重複削除
- * - 統一されたボタンスタイルとスペーシング
- * - レスポンシブ対応
+ * ハイブランド アクションボタン v3.0
+ * - モノトーンデザイン
+ * - ミニマルインターフェース
+ * - エレガントなナビゲーション
  */
 
 interface ActionButtonsProps {
@@ -24,10 +24,10 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
   const { resetAll } = useWarikanStore();
   const navigation = useCommonNavigation();
 
-  // ボタンアクション（共通ナビゲーション使用）
+  // ボタンアクション
   const handleReset = () => {
     resetAll();
-    navigation.goHome(); // ROUTES.home
+    navigation.goHome();
   };
 
   const handleBack = () => {
@@ -36,38 +36,53 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
 
   // スペーシングマッピング
   const spacingClass = {
-    sm: 'gap-2',
-    base: 'gap-3', 
-    lg: 'gap-4',
+    sm: 'gap-3',
+    base: 'gap-4', 
+    lg: 'gap-6',
   }[spacing];
 
   return (
     <div 
       className={cn(
-        'flex justify-between items-center mt-6',
+        'flex justify-between items-center mt-8 pt-6 border-t',
         'flex-col sm:flex-row',
         spacingClass,
+        colors.text.secondary,
         className
       )}
     >
       <Button
-        variant="outline"
-        className="w-full sm:w-auto text-sm sm:text-base px-4 py-2"
+        variant="ghost"
+        size="sm"
+        className={cn(
+          'w-full sm:w-auto font-light tracking-wide',
+          'hover:text-foreground transition-colors'
+        )}
         onClick={handleBack}
         type="button"
-        aria-label="前のページに戻る"
+        aria-label="Go back to previous page"
       >
-        ← 戻る
+        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back
       </Button>
       
       <Button
         variant="ghost"
-        className="w-full sm:w-auto text-sm sm:text-base px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+        size="sm"
+        className={cn(
+          'w-full sm:w-auto font-light tracking-wide text-destructive/60',
+          'hover:text-destructive hover:bg-destructive/5 transition-colors'
+        )}
         onClick={handleReset}
         type="button"
-        aria-label={`全データをリセットして${ROUTES.home}に戻る`}
+        aria-label="Reset all data and return to home"
       >
-        🔄 リセット
+        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0V9a8 8 0 1115.356 2M15 15v5h-.582M4.582 15A8.001 8.001 0 0019.418 11m0 0V11a8 8 0 10-15.356-2" />
+        </svg>
+        Reset
       </Button>
     </div>
   );
