@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -11,6 +11,16 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+// ビューポート設定（スマホ最適化）
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: '#3B82F6',
+  colorScheme: 'light',
+};
 
 // サイト全体のメタデータ（SEO・OGPにも利用可）
 export const metadata: Metadata = {
@@ -30,6 +40,12 @@ export const metadata: Metadata = {
     siteName: "シンプル割り勘アプリ",
   },
   robots: "index,follow",
+  formatDetection: {
+    telephone: false,
+    date: false,
+    address: false,
+    email: false,
+  },
 };
 
 export default function RootLayout({

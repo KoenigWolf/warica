@@ -52,8 +52,8 @@ const ResultPage: React.FC = () => {
     <PageContainer variant="premium">
       {/* ページヘッダー */}
       <header className={cn(
-        'text-center space-y-4',
-        advancedSpacing.section.loose
+        'text-center space-y-3 sm:space-y-4',
+        'mb-6 sm:mb-8'
       )}>
         <BoldTitle>割り勘結果</BoldTitle>
         {eventName && (
@@ -71,14 +71,14 @@ const ResultPage: React.FC = () => {
           typography.body.large,
           'text-gray-600 max-w-2xl mx-auto'
         )}>
-          計算完了！誰がいくら受け取り/支払いするかを確認しましょう
+          計算完了！受け取り/支払い金額を確認しましょう
         </p>
       </header>
 
       {/* メンバー清算金額リスト */}
       <section className={cn(
-        'space-y-4',
-        advancedSpacing.section.normal
+        'space-y-3 sm:space-y-4',
+        'mb-6 sm:mb-8'
       )}>
         <div className="flex items-center gap-3">
           <h3 className={cn(typography.heading.h3, 'text-gray-800')}>
@@ -105,7 +105,7 @@ const ResultPage: React.FC = () => {
               >
                 <div className="flex items-center gap-3">
                   <div className={cn(
-                    'w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold',
+                    'w-12 h-12 rounded-full flex items-center justify-center text-base font-bold',
                     item.balance > 0 
                       ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white'
                       : item.balance < 0
@@ -151,15 +151,15 @@ const ResultPage: React.FC = () => {
 
       {/* 送金リスト */}
       <section className={cn(
-        'space-y-4',
-        advancedSpacing.section.normal
+        'space-y-3 sm:space-y-4',
+        'mb-6 sm:mb-8'
       )}>
         <div className="flex items-center gap-3">
           <h3 className={cn(typography.heading.h3, 'text-gray-800')}>
             📤 送金リスト
           </h3>
           <span className={cn(
-            'px-2 py-1 text-xs font-medium rounded-full',
+            'px-3 py-1 text-sm sm:text-base font-medium rounded-full',
             'bg-blue-100 text-blue-700'
           )}>
             最小{resultLogic.display.settlementItems.length}回
@@ -194,7 +194,7 @@ const ResultPage: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center text-xs font-medium text-white">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center text-sm font-medium text-white">
                           {item.from.charAt(0)}
                         </div>
                         <span className={cn(typography.body.base, 'font-semibold text-gray-800')}>
@@ -209,7 +209,7 @@ const ResultPage: React.FC = () => {
                       </div>
                       
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 flex items-center justify-center text-xs font-medium text-white">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 flex items-center justify-center text-sm font-medium text-white">
                           {item.to.charAt(0)}
                         </div>
                         <span className={cn(typography.body.base, 'font-semibold text-gray-800')}>
@@ -220,7 +220,7 @@ const ResultPage: React.FC = () => {
                     
                     <div className="text-right">
                       <p className={cn(typography.heading.h4, 'font-bold text-blue-700')}>
-                        {item.formattedAmount}円
+                        {item.formattedAmount}
                       </p>
                     </div>
                   </div>
@@ -233,8 +233,8 @@ const ResultPage: React.FC = () => {
 
       {/* 支払い詳細セクション */}
       <section className={cn(
-        'space-y-4',
-        advancedSpacing.section.normal
+        'space-y-3 sm:space-y-4',
+        'mb-6 sm:mb-8'
       )}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -242,7 +242,7 @@ const ResultPage: React.FC = () => {
               📋 支払い詳細
             </h3>
             <span className={cn(
-              'px-2 py-1 text-xs font-medium rounded-full',
+              'px-3 py-1 text-sm sm:text-base font-medium rounded-full',
               'bg-gray-100 text-gray-600'
             )}>
               {payments.length}件
@@ -265,10 +265,10 @@ const ResultPage: React.FC = () => {
         </div>
       </section>
 
-      {/* アクションボタンセクション */}
+      {/* 最終アクション */}
       <section className={cn(
-        'space-y-4 pt-6',
-        advancedSpacing.section.normal
+        'pt-4 sm:pt-6 space-y-3 sm:space-y-4',
+        'mb-4 sm:mb-6'
       )}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Button

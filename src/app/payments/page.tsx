@@ -82,8 +82,8 @@ const PaymentsPage: React.FC = () => {
     <PageContainer variant="wide">
       {/* ページヘッダー */}
       <header className={cn(
-        'text-center space-y-3',
-        advancedSpacing.section.normal
+        'text-center space-y-2 sm:space-y-3',
+        'mb-6 sm:mb-8'
       )}>
         <BoldTitle>支払い入力</BoldTitle>
         <p className={cn(
@@ -96,8 +96,8 @@ const PaymentsPage: React.FC = () => {
 
       {/* 支払い追加フォーム */}
       <section className={cn(
-        'space-y-6',
-        advancedSpacing.section.normal
+        'space-y-4 sm:space-y-6',
+        'mb-6 sm:mb-8'
       )}>
         <div className={cn(
           getModernCardClasses('feature'),
@@ -188,7 +188,7 @@ const PaymentsPage: React.FC = () => {
                     />
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       <div className={cn(
-                        'w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium',
+                        'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium',
                         selectedPayeeIds.includes(member.id)
                           ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white'
                           : 'bg-gray-300 text-gray-600'
@@ -196,7 +196,7 @@ const PaymentsPage: React.FC = () => {
                         {member.name.charAt(0)}
                       </div>
                       <span className={cn(
-                        typography.body.small,
+                        typography.body.base,
                         'truncate',
                         payerId === member.id ? 'text-gray-400' : 'text-gray-700'
                       )}>
@@ -258,8 +258,8 @@ const PaymentsPage: React.FC = () => {
 
       {/* 支払い一覧セクション */}
       <section className={cn(
-        'space-y-4',
-        advancedSpacing.section.normal
+        'space-y-3 sm:space-y-4',
+        'mb-6 sm:mb-8'
       )}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -267,7 +267,7 @@ const PaymentsPage: React.FC = () => {
               支払い一覧
             </h3>
             <span className={cn(
-              'px-3 py-1 text-sm font-medium rounded-full',
+              'px-3 py-1 text-sm sm:text-base font-medium rounded-full',
               payments.length > 0 
                 ? 'bg-emerald-100 text-emerald-700'
                 : 'bg-gray-100 text-gray-500'
@@ -293,8 +293,8 @@ const PaymentsPage: React.FC = () => {
 
       {/* 進行ボタンセクション */}
       <section className={cn(
-        'space-y-4 pt-6',
-        advancedSpacing.section.normal
+        'space-y-3 sm:space-y-4 pt-4 sm:pt-6',
+        'mb-4 sm:mb-6'
       )}>
         <Button
           onClick={navigation.goToResults}
@@ -309,7 +309,7 @@ const PaymentsPage: React.FC = () => {
         >
           {payments.length > 0 ? (
             <span className="flex items-center gap-2">
-              割り勘計算へ進む 🧮
+              割り勘計算へ進む
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>

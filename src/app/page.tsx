@@ -12,20 +12,12 @@ import { cn, typography, advancedSpacing, motion, getModernCardClasses } from "@
 import type { MemberId } from "../lib/types";
 
 /**
- * 世界最高水準ホームページ v2.0
- * - Glass Morphism + プレミアムレイアウト
- * - 黄金比ベース余白システム
- * - 高度なマイクロインタラクション
- * - 完全アクセシビリティ対応
- */
-
-/**
  * アプリヒーローセクション（プレミアムデザイン）
  */
 const AppHeroSection: React.FC = () => (
   <section className={cn(
-    'text-center space-y-6',
-    advancedSpacing.section.loose,
+    'text-center space-y-4 sm:space-y-6',
+    'mb-6 sm:mb-8',  // 下部余白のみ設定
     motion.entrance.slideDown
   )}>
     <HeroTitle>
@@ -42,19 +34,19 @@ const AppHeroSection: React.FC = () => (
       </p>
       
       <div className={cn(
-        'flex items-center justify-center gap-3 text-sm text-gray-500',
+        'flex items-center justify-center gap-4 text-base sm:text-lg text-gray-500',
         motion.entrance.fadeIn
       )}>
-        <span className="flex items-center gap-1">
-          <div className="w-2 h-2 bg-emerald-500 rounded-full" />
+        <span className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-emerald-500 rounded-full" />
           ローカル保存
         </span>
-        <span className="flex items-center gap-1">
-          <div className="w-2 h-2 bg-blue-500 rounded-full" />
+        <span className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-blue-500 rounded-full" />
           個人利用向け
         </span>
-        <span className="flex items-center gap-1">
-          <div className="w-2 h-2 bg-violet-500 rounded-full" />
+        <span className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-violet-500 rounded-full" />
           完全無料
         </span>
       </div>
@@ -102,8 +94,8 @@ const PremiumMemberInput: React.FC<{
 
   return (
     <section className={cn(
-      'space-y-6',
-      advancedSpacing.section.normal
+      'space-y-4 sm:space-y-6',
+      'mb-6 sm:mb-8'  // 標準的な余白
     )}>
       {/* セクションヘッダー */}
       <div className="space-y-2">
@@ -114,7 +106,7 @@ const PremiumMemberInput: React.FC<{
           <span className="flex items-center gap-2">
             👥 メンバー追加
             <span className={cn(
-              'px-2 py-1 text-xs font-medium rounded-full',
+              'px-3 py-1 text-sm sm:text-base font-medium rounded-full',
               'bg-blue-100 text-blue-700'
             )}>
               {members.length}人
@@ -195,7 +187,7 @@ const PremiumMemberInput: React.FC<{
             ) : (
               <>
                 <div className={cn(
-                  'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium',
+                  'w-10 h-10 rounded-full flex items-center justify-center text-base font-medium',
                   'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
                 )}>
                   {member.name.charAt(0)}
@@ -288,8 +280,8 @@ export default function HomePage() {
       
       {/* イベント名入力セクション */}
       <section className={cn(
-        'space-y-4',
-        advancedSpacing.section.normal
+        'space-y-3 sm:space-y-4',
+        'mb-6 sm:mb-8'
       )}>
         <Label className={cn(
           typography.heading.h4,

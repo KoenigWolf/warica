@@ -45,21 +45,23 @@ export const PageContainer: React.FC<PageContainerProps> = ({
 
   return (
     <div className={cn(
-      modernComponents.pageContainer.wrapper,
+      // 基本レイアウト（上部余白を削減）
+      'min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center px-6 py-4 sm:px-8 sm:py-6',
       isClient && motion.entrance.fadeIn,
       className
     )}>
       {/* メインコンテナ（Glass Morphism） */}
       <Card className={cn(
-        modernComponents.pageContainer.card,
+        // カードスタイル（スマホファースト、ホバー効果を削除）
+        'w-full backdrop-blur-sm bg-white/80 shadow-2xl shadow-blue-500/10 rounded-3xl border border-white/20',
         variantStyles,
-        isClient && motion.entrance.slideUp,
-        isClient && motion.interaction.hover
+        isClient && motion.entrance.slideUp
       )}>
         <CardContent className={cn(
-          modernComponents.pageContainer.content,
+          // コンテンツ余白（上部を削減）
+          'p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8',
           // プレミアムバリアント特別スタイル
-          variant === 'premium' && 'p-8 sm:p-12 md:p-16 space-y-8 sm:space-y-10'
+          variant === 'premium' && 'p-6 sm:p-8 md:p-12 lg:p-16 space-y-8 sm:space-y-10'
         )}>
           {/* 動的ヘッダー（オプション） */}
           {(title || subtitle) && (

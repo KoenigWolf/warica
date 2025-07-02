@@ -72,11 +72,11 @@ const buttonVariants = cva(
       },
       
       size: {
-        sm: "h-9 px-4 text-sm",
-        default: "h-11 px-6 text-base",
-        lg: "h-12 px-8 text-lg",
-        xl: "h-14 px-10 text-xl",
-        icon: "h-11 w-11",
+        sm: "h-11 px-6 text-base",      // 44px最小タッチターゲット
+        default: "h-12 px-8 text-lg",   // 48px標準
+        lg: "h-14 px-10 text-xl",       // 56px大きめ
+        xl: "h-16 px-12 text-2xl",      // 64px最大
+        icon: "h-12 w-12",              // アイコンボタン（48x48px）
       },
       
       fullWidth: {

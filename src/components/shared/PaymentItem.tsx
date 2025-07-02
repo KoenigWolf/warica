@@ -45,7 +45,7 @@ export const PaymentItem: React.FC<PaymentItemProps> = ({
     return (
       <div className={getCardClasses('compact')}>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center gap-2 text-base sm:text-lg">
             <span className="font-medium text-gray-800 truncate">
               {payerName}
             </span>
@@ -54,7 +54,7 @@ export const PaymentItem: React.FC<PaymentItemProps> = ({
             </span>
           </div>
           {payment.memo && (
-            <div className="text-xs text-gray-500 mt-1 truncate">
+            <div className="text-sm sm:text-base text-gray-500 mt-1 truncate">
               {formatMemo(payment.memo, 30)}
             </div>
           )}
@@ -64,9 +64,8 @@ export const PaymentItem: React.FC<PaymentItemProps> = ({
             {onEdit && (
               <Button
                 variant="ghost"
-                
                 onClick={() => onEdit(payment)}
-                className="text-xs px-2 py-1 h-auto"
+                className="text-sm px-3 py-2 h-auto"
                 aria-label={`${payerName}の支払いを編集`}
               >
                 編集
@@ -75,9 +74,8 @@ export const PaymentItem: React.FC<PaymentItemProps> = ({
             {onRemove && (
               <Button
                 variant="ghost"
-                
                 onClick={() => onRemove(payment.id)}
-                className="text-xs text-red-500 px-2 py-1 h-auto hover:text-red-700"
+                className="text-sm text-red-500 px-3 py-2 h-auto hover:text-red-700"
                 aria-label={`${payerName}の支払いを削除`}
               >
                 削除
@@ -96,18 +94,18 @@ export const PaymentItem: React.FC<PaymentItemProps> = ({
           {/* メイン情報 */}
           <div className="flex items-center gap-3 mb-2">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-blue-600 font-semibold text-sm">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <span className="text-blue-600 font-semibold text-base">
                   {payerName.charAt(0)}
                 </span>
               </div>
-              <span className="font-medium text-gray-800">
+              <span className="font-medium text-gray-800 text-lg">
                 {payerName}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-gray-500 text-sm">が支払い</span>
-              <span className={cn(amountStyleClass, "font-mono font-semibold")}>
+              <span className="text-gray-500 text-base">が支払い</span>
+              <span className={cn(amountStyleClass, "font-mono font-semibold text-lg")}>
                 {formatCompactAmount(payment.amount)}
               </span>
             </div>
@@ -116,15 +114,15 @@ export const PaymentItem: React.FC<PaymentItemProps> = ({
           {/* メモ情報 */}
           {payment.memo && (
             <div className="mb-2">
-              <div className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 rounded text-sm text-gray-600">
-                <span className="text-xs">💬</span>
+              <div className="inline-flex items-center gap-1 px-3 py-2 bg-gray-100 rounded text-base text-gray-600">
+                <span className="text-sm">💬</span>
                 <span>{formatMemo(payment.memo, 40)}</span>
               </div>
             </div>
           )}
 
           {/* タイムスタンプ */}
-          <div className="text-xs text-gray-400">
+          <div className="text-sm text-gray-400">
             {formatTimeAgo(payment.createdAt)}
             {payment.updatedAt && payment.updatedAt !== payment.createdAt && (
               <span className="ml-2">(編集済み)</span>
@@ -134,13 +132,12 @@ export const PaymentItem: React.FC<PaymentItemProps> = ({
 
         {/* アクション */}
         {showActions && (
-          <div className="flex flex-col gap-1 ml-4">
+          <div className="flex flex-col gap-2 ml-4">
             {onEdit && (
               <Button
                 variant="outline"
-                
                 onClick={() => onEdit(payment)}
-                className="text-xs px-3 py-1"
+                className="text-sm px-4 py-2"
                 aria-label={`${payerName}の支払いを編集`}
               >
                 編集
@@ -149,9 +146,8 @@ export const PaymentItem: React.FC<PaymentItemProps> = ({
             {onRemove && (
               <Button
                 variant="ghost"
-                
                 onClick={() => onRemove(payment.id)}
-                className="text-xs text-red-500 px-3 py-1 hover:text-red-700 hover:bg-red-50"
+                className="text-sm text-red-500 px-4 py-2 hover:text-red-700 hover:bg-red-50"
                 aria-label={`${payerName}の支払いを削除`}
               >
                 削除
@@ -189,8 +185,8 @@ export const PaymentList: React.FC<PaymentListProps> = ({
   if (payments.length === 0) {
     return (
       <div className="text-center py-8 text-gray-400">
-        <div className="text-4xl mb-2">💳</div>
-        <p>{emptyMessage}</p>
+        <div className="text-6xl mb-4">💳</div>
+        <p className="text-lg">{emptyMessage}</p>
       </div>
     );
   }

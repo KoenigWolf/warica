@@ -11,8 +11,8 @@ import { cn, motion, typography } from "@/lib/design-system"
  */
 
 const inputVariants = cva(
-  // ベーススタイル（Glass Morphism）
-  "w-full rounded-lg border-0 bg-white/60 backdrop-blur-sm px-4 py-3 text-gray-900 shadow-sm ring-1 ring-gray-200/50 placeholder:text-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:bg-white/80 disabled:cursor-not-allowed disabled:opacity-50",
+  // ベーススタイル（Glass Morphism、スマホ最適化）
+  "w-full rounded-lg border-0 bg-white/60 backdrop-blur-sm px-6 py-4 text-gray-900 shadow-sm ring-1 ring-gray-200/50 placeholder:text-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:bg-white/80 disabled:cursor-not-allowed disabled:opacity-50",
   {
     variants: {
       variant: {
@@ -36,10 +36,10 @@ const inputVariants = cva(
       },
       
       inputSize: {
-        sm: "h-9 px-3 py-2 text-sm",
-        default: "h-11 px-4 py-3 text-base", 
-        lg: "h-12 px-5 py-3 text-lg",
-        xl: "h-14 px-6 py-4 text-xl",
+        sm: "h-11 px-4 py-3 text-base",     // 44px最小
+        default: "h-12 px-6 py-4 text-lg",  // 48px標準
+        lg: "h-14 px-8 py-4 text-xl",       // 56px大きめ
+        xl: "h-16 px-10 py-5 text-2xl",     // 64px最大
       },
       
       rounded: {

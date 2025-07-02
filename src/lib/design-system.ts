@@ -7,22 +7,22 @@
  */
 
 // =============================================================================
-// 高度余白システム（黄金比ベース：1.618）
+// 高度余白システム（黄金比ベース：1.618、スマホ最適化）
 // =============================================================================
 
 export const advancedSpacing = {
   // プライマリースペーシング（黄金比系列）
   scale: {
-    xs: '0.382rem',     // ~6px (0.618^2)
-    sm: '0.618rem',     // ~10px (0.618)  
-    base: '1rem',       // 16px (基準)
-    md: '1.618rem',     // ~26px (黄金比)
-    lg: '2.618rem',     // ~42px (φ²)
-    xl: '4.236rem',     // ~68px (φ³)
-    '2xl': '6.854rem',  // ~110px (φ⁴)
+    xs: '0.5rem',      // ~8px
+    sm: '0.75rem',     // ~12px
+    base: '1rem',      // 16px (基準)
+    md: '1.5rem',      // ~24px
+    lg: '2rem',        // ~32px
+    xl: '3rem',        // ~48px
+    '2xl': '4rem',     // ~64px
   },
 
-  // セクション間余白（コンテンツ階層）
+  // セクション間余白（コンテンツ階層、上部余白削減）
   section: {
     tight: 'mb-4 sm:mb-6',           // 密な関係
     normal: 'mb-6 sm:mb-8',          // 標準セクション間
@@ -30,51 +30,51 @@ export const advancedSpacing = {
     dramatic: 'mb-12 sm:mb-16',      // ドラマチック分割
   },
 
-  // インターナル余白（要素内余白）
+  // インターナル余白（要素内余白、スマホ優先）
   internal: {
-    tight: 'p-3 sm:p-4',             // コンパクト
-    normal: 'p-4 sm:p-6',            // 標準
-    generous: 'p-6 sm:p-8',          // ゆとり
-    luxurious: 'p-8 sm:p-12',        // 高級感
+    tight: 'p-4 sm:p-6',             // コンパクト
+    normal: 'p-6 sm:p-8',            // 標準
+    generous: 'p-8 sm:p-12',         // ゆとり
+    luxurious: 'p-12 sm:p-16',       // 高級感
   },
 
-  // 要素間ギャップ（フレックス・グリッド）
+  // 要素間ギャップ（フレックス・グリッド、スマホ配慮）
   gap: {
-    xs: 'gap-2',           // 8px - 密接な関係
-    sm: 'gap-3',           // 12px - 関連要素
-    md: 'gap-4',           // 16px - 標準
-    lg: 'gap-6',           // 24px - セクション内
-    xl: 'gap-8',           // 32px - セクション間
+    xs: 'gap-3',           // 12px - 密接な関係
+    sm: 'gap-4',           // 16px - 関連要素
+    md: 'gap-6',           // 24px - 標準
+    lg: 'gap-8',           // 32px - セクション内
+    xl: 'gap-12',          // 48px - セクション間
   },
 } as const;
 
 // =============================================================================
-// プレミアムタイポグラフィシステム
+// プレミアムタイポグラフィシステム（スマホ最適化）
 // =============================================================================
 
 export const typography = {
-  // 階層的見出しシステム
+  // 階層的見出しシステム（スマホで読みやすいサイズ）
   heading: {
-    hero: 'text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight',
-    h1: 'text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight leading-tight',
-    h2: 'text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight leading-snug',
-    h3: 'text-lg sm:text-xl font-semibold leading-snug',
-    h4: 'text-base sm:text-lg font-medium leading-normal',
+    hero: 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-tight',
+    h1: 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight',
+    h2: 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight leading-snug',
+    h3: 'text-xl sm:text-2xl md:text-3xl font-semibold leading-snug',
+    h4: 'text-lg sm:text-xl md:text-2xl font-medium leading-normal',
   },
 
-  // ボディテキスト階層
+  // ボディテキスト階層（最小16px、読みやすい行間）
   body: {
-    large: 'text-lg leading-relaxed',
-    base: 'text-base leading-normal',
-    small: 'text-sm leading-normal',
-    caption: 'text-xs leading-tight',
+    large: 'text-xl sm:text-2xl leading-relaxed',
+    base: 'text-lg sm:text-xl leading-relaxed',
+    small: 'text-base sm:text-lg leading-relaxed',
+    caption: 'text-sm sm:text-base leading-normal',
   },
 
-  // スペシャル用途
+  // スペシャル用途（スマホ配慮）
   special: {
-    mono: 'font-mono text-sm tracking-wide',
-    emphasis: 'font-medium text-base tracking-wide',
-    subtle: 'text-sm text-gray-500 leading-relaxed',
+    mono: 'font-mono text-base sm:text-lg tracking-wide leading-relaxed',
+    emphasis: 'font-medium text-lg sm:text-xl tracking-wide leading-relaxed',
+    subtle: 'text-base sm:text-lg text-gray-500 leading-relaxed',
   },
 } as const;
 
@@ -121,7 +121,7 @@ export const modernComponents = {
     content: 'p-6 sm:p-8 md:p-10 space-y-6 sm:space-y-8',
   },
 
-  // モダンボタンシステム
+  // モダンボタンシステム（スマホ最適化）
   button: {
     base: 'inline-flex items-center justify-center rounded-xl font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95',
     
@@ -134,68 +134,68 @@ export const modernComponents = {
     },
 
     sizes: {
-      sm: 'h-9 px-4 text-sm',
-      base: 'h-11 px-6 text-base',
-      lg: 'h-12 px-8 text-lg',
-      xl: 'h-14 px-10 text-xl',
+      sm: 'h-11 px-6 text-base',      // 44px最小タッチターゲット
+      base: 'h-12 px-8 text-lg',      // 48px標準
+      lg: 'h-14 px-10 text-xl',       // 56px大きめ
+      xl: 'h-16 px-12 text-2xl',      // 64px最大
     },
   },
 
-  // プレミアム入力フィールド
+  // プレミアム入力フィールド（スマホ最適化）
   input: {
-    base: 'w-full rounded-lg border-0 bg-white/60 backdrop-blur-sm px-4 py-3 text-gray-900 shadow-sm ring-1 ring-gray-200/50 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500/50 focus:bg-white/80 transition-all duration-200',
+    base: 'w-full rounded-lg border-0 bg-white/60 backdrop-blur-sm px-6 py-4 text-gray-900 shadow-sm ring-1 ring-gray-200/50 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500/50 focus:bg-white/80 transition-all duration-200',
     sizes: {
-      sm: 'h-9 px-3 py-2 text-sm',
-      base: 'h-11 px-4 py-3 text-base',
-      lg: 'h-12 px-5 py-3 text-lg',
+      sm: 'h-11 px-4 py-3 text-base',   // 44px最小
+      base: 'h-12 px-6 py-4 text-lg',   // 48px標準
+      lg: 'h-14 px-8 py-4 text-xl',     // 56px大きめ
     },
   },
 
-  // エレガントカードシステム
+  // エレガントカードシステム（スマホ最適化）
   card: {
     base: 'bg-white/70 backdrop-blur-sm rounded-xl border border-white/20 shadow-lg shadow-gray-500/5',
     variants: {
-      normal: 'p-6 space-y-4',
-      compact: 'p-4 space-y-3',
-      feature: 'p-8 space-y-6 shadow-xl shadow-blue-500/10',
+      normal: 'p-6 sm:p-8 space-y-6',
+      compact: 'p-4 sm:p-6 space-y-4',
+      feature: 'p-8 sm:p-12 space-y-8 shadow-xl shadow-blue-500/10',
     },
   },
 
-  // リストアイテム（モダンデザイン）
+  // リストアイテム（モダンデザイン、スマホ配慮）
   listItem: {
     base: 'rounded-lg transition-all duration-200',
     variants: {
-      normal: 'bg-white/60 backdrop-blur-sm border border-gray-200/30 p-4 shadow-sm hover:shadow-md hover:bg-white/80',
-      compact: 'bg-gray-50/80 backdrop-blur-sm p-3 hover:bg-white/60',
-      feature: 'bg-gradient-to-r from-blue-50/80 to-indigo-50/80 backdrop-blur-sm border border-blue-200/30 p-4 shadow-md',
+      normal: 'bg-white/60 backdrop-blur-sm border border-gray-200/30 p-6 sm:p-8 shadow-sm hover:shadow-md hover:bg-white/80',
+      compact: 'bg-gray-50/80 backdrop-blur-sm p-4 sm:p-6 hover:bg-white/60',
+      feature: 'bg-gradient-to-r from-blue-50/80 to-indigo-50/80 backdrop-blur-sm border border-blue-200/30 p-6 sm:p-8 shadow-md',
     },
   },
 } as const;
 
 // =============================================================================
-// レスポンシブブレークポイントシステム
+// レスポンシブブレークポイントシステム（スマホファースト）
 // =============================================================================
 
 export const responsive = {
-  // デバイス別余白調整
+  // デバイス別余白調整（スマホ重視）
   spacing: {
-    mobile: 'px-4 py-6',
-    tablet: 'sm:px-6 sm:py-8',
-    desktop: 'md:px-8 md:py-10',
-    wide: 'lg:px-10 lg:py-12',
+    mobile: 'px-6 py-8',
+    tablet: 'sm:px-8 sm:py-12',
+    desktop: 'md:px-12 md:py-16',
+    wide: 'lg:px-16 lg:py-20',
   },
 
-  // テキストサイズ調整
+  // テキストサイズ調整（最小16px保証）
   text: {
-    fluid: 'text-sm sm:text-base md:text-lg',
-    heading: 'text-lg sm:text-xl md:text-2xl',
-    hero: 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl',
+    fluid: 'text-base sm:text-lg md:text-xl',
+    heading: 'text-xl sm:text-2xl md:text-3xl',
+    hero: 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl',
   },
 
-  // 要素サイズ調整
+  // 要素サイズ調整（44px以上保証）
   component: {
-    button: 'h-10 sm:h-11 md:h-12 px-4 sm:px-6 md:px-8',
-    input: 'h-10 sm:h-11 md:h-12 px-3 sm:px-4 md:px-5',
+    button: 'h-12 sm:h-14 md:h-16 px-6 sm:px-8 md:px-10',
+    input: 'h-12 sm:h-14 md:h-16 px-6 sm:px-8 md:px-10',
   },
 } as const;
 
@@ -212,11 +212,11 @@ export const motion = {
     smooth: 'transition-all duration-500 ease-in-out',
   },
 
-  // インタラクションエフェクト
+  // インタラクションエフェクト（ホバー時のサイズ変更を削除）
   interaction: {
-    hover: 'hover:scale-105 hover:shadow-lg',
-    press: 'active:scale-95',
-    focus: 'focus:scale-105 focus:shadow-lg',
+    hover: 'hover:shadow-lg',              // サイズ変更を削除、影のみ
+    press: 'active:scale-95',              // プレス時のみスケール維持
+    focus: 'focus:shadow-lg',              // サイズ変更を削除、影のみ
     disabled: 'disabled:opacity-50 disabled:cursor-not-allowed',
   },
 
