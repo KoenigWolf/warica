@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
-import { cn, motion } from "@/lib/design-system"
+import { cn } from "@/lib/design-system"
 
 /**
  * 世界最高水準モダンボタン v2.0
@@ -124,8 +124,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           // ローディング状態
           loading && "pointer-events-none",
           // カスタムアニメーション
-          motion.transition.normal,
-          motion.interaction.press
+          'transition-all duration-200 active:scale-95'
         )}
         ref={ref}
         disabled={disabled || loading}

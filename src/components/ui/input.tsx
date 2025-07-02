@@ -1,6 +1,6 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
-import { cn, motion, typography } from "@/lib/design-system"
+import { cn } from "@/lib/design-system"
 
 /**
  * 世界最高水準モダンインプット v2.0
@@ -106,7 +106,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {/* 標準ラベル（非フローティング） */}
         {label && !floating && (
           <label className={cn(
-            typography.body.small,
             "font-medium text-gray-700 mb-2 block",
             isError && "text-red-600"
           )}>
@@ -133,8 +132,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               ...(rightIcon ? ["pr-10"] : []),
               // フローティングラベル用調整
               ...(floating ? ["placeholder-transparent"] : []),
-              // カスタムアニメーション
-              motion.transition.normal,
               className
             )}
             ref={ref}
@@ -160,10 +157,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {label && floating && (
             <label className={cn(
               "absolute left-4 transition-all duration-200 pointer-events-none",
-              typography.body.small,
+              "font-medium text-xs",
               // ラベル位置制御
               (isFocused || hasValue)
-                ? "-top-2.5 left-3 bg-white/80 backdrop-blur-sm px-2 text-xs font-medium"
+                ? "-top-2.5 left-3 bg-white/80 backdrop-blur-sm px-2"
                 : "top-1/2 -translate-y-1/2 text-gray-400",
               // カラー制御
               isFocused 
@@ -199,7 +196,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {(helperText || errorMessage) && (
           <div className={cn(
             "mt-2 flex items-start gap-1",
-            motion.entrance.slideUp
+            "text-xs"
           )}>
             {isError && (
               <svg className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -207,7 +204,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               </svg>
             )}
             <p className={cn(
-              typography.body.caption,
+              "text-gray-500",
               isError ? "text-red-600" : "text-gray-500"
             )}>
               {errorMessage || helperText}

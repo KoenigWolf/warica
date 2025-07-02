@@ -8,7 +8,7 @@ import { HeroTitle } from "@/components/SectionTitle";
 import { ActionButtons } from "@/components/ActionButtons";
 import { useWarikanStore } from "./useWarikanStore";
 import { useSetupLogic, useCommonNavigation, useErrorDisplay } from "../lib/shared-logic";
-import { cn, typography, advancedSpacing, motion, getModernCardClasses } from "@/lib/design-system";
+import { cn, typography } from "@/lib/design-system";
 import type { MemberId } from "../lib/types";
 
 /**
@@ -17,8 +17,7 @@ import type { MemberId } from "../lib/types";
 const AppHeroSection: React.FC = () => (
   <section className={cn(
     'text-center space-y-4 sm:space-y-6',
-    'mb-6 sm:mb-8',  // 下部余白のみ設定
-    motion.entrance.slideDown
+    'mb-6 sm:mb-8'
   )}>
     <HeroTitle>
       シンプル割り勘アプリ
@@ -34,8 +33,7 @@ const AppHeroSection: React.FC = () => (
       </p>
       
       <div className={cn(
-        'flex items-center justify-center gap-4 text-base sm:text-lg text-gray-500',
-        motion.entrance.fadeIn
+        'flex items-center justify-center gap-4 text-base sm:text-lg text-gray-500'
       )}>
         <span className="flex items-center gap-2">
           <div className="w-3 h-3 bg-emerald-500 rounded-full" />
@@ -94,8 +92,8 @@ const PremiumMemberInput: React.FC<{
 
   return (
     <section className={cn(
-      'space-y-4 sm:space-y-6',
-      'mb-6 sm:mb-8'  // 標準的な余白
+      'bg-white/70 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/20 shadow-lg',
+      'space-y-4 sm:space-y-6 mb-6 sm:mb-8'
     )}>
       {/* セクションヘッダー */}
       <div className="space-y-2">
@@ -120,8 +118,7 @@ const PremiumMemberInput: React.FC<{
 
       {/* メンバー追加フォーム */}
       <div className={cn(
-        getModernCardClasses('normal'),
-        motion.entrance.slideUp
+        'bg-white/50 rounded-lg p-4 border border-gray-100'
       )}>
         <div className="flex gap-3">
           <Input
@@ -147,8 +144,7 @@ const PremiumMemberInput: React.FC<{
         {members.length === 0 && (
           <div className={cn(
             'text-center py-8 px-4 rounded-xl',
-            'bg-gray-50/80 backdrop-blur-sm border-2 border-dashed border-gray-200',
-            motion.entrance.fadeIn
+            'bg-gray-50/80 backdrop-blur-sm border-2 border-dashed border-gray-200'
           )}>
             <div className="text-4xl mb-2">👋</div>
             <p className={cn(typography.body.base, 'text-gray-500')}>
@@ -161,10 +157,9 @@ const PremiumMemberInput: React.FC<{
           <div 
             key={member.id} 
             className={cn(
-              getModernCardClasses('compact'),
+              'bg-white/50 backdrop-blur-sm rounded-lg p-3 border border-gray-100',
               'flex items-center gap-3',
-              motion.entrance.slideUp,
-              motion.transition.normal
+              'hover:bg-white/70 transition-all duration-200'
             )}
           >
             {editId === member.id ? (
@@ -252,7 +247,7 @@ export default function HomePage() {
   };
 
   return (
-    <PageContainer variant="wide">
+    <PageContainer>
       {/* ヒーローセクション */}
       <AppHeroSection />
       
@@ -260,8 +255,7 @@ export default function HomePage() {
       {errorDisplay.hasErrors && (
         <div className={cn(
           'p-4 rounded-xl border-l-4 border-red-500',
-          'bg-red-50/80 backdrop-blur-sm',
-          motion.entrance.slideDown
+          'bg-red-50/80 backdrop-blur-sm'
         )}>
           <div className="flex items-start gap-3">
             <svg className="w-5 h-5 text-red-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -280,8 +274,8 @@ export default function HomePage() {
       
       {/* イベント名入力セクション */}
       <section className={cn(
-        'space-y-3 sm:space-y-4',
-        'mb-6 sm:mb-8'
+        'bg-white/70 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/20 shadow-lg',
+        'space-y-3 sm:space-y-4 mb-6 sm:mb-8'
       )}>
         <Label className={cn(
           typography.heading.h4,
@@ -310,20 +304,13 @@ export default function HomePage() {
       />
 
       {/* 進行ボタンセクション */}
-      <section className={cn(
-        'space-y-4 pt-6',
-        advancedSpacing.section.normal
-      )}>
+      <section className="space-y-4 pt-6 mb-6 sm:mb-8">
         <Button
           onClick={handleNext}
           disabled={!setupLogic.computed.canProceed}
           variant={setupLogic.computed.canProceed ? "premium" : "secondary"}
           size="xl"
           fullWidth
-          className={cn(
-            motion.entrance.zoom,
-            motion.interaction.hover
-          )}
         >
           {setupLogic.computed.canProceed ? (
             <span className="flex items-center gap-2">
@@ -340,8 +327,7 @@ export default function HomePage() {
         {!setupLogic.computed.canProceed && (
           <p className={cn(
             typography.body.small,
-            'text-center text-gray-500',
-            motion.entrance.fadeIn
+            'text-center text-gray-500'
           )}>
             イベント名と2人以上のメンバーが必要です
           </p>

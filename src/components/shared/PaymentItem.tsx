@@ -2,184 +2,26 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { 
-  cn, 
-  getCardClasses, 
-  getAmountStyle 
-} from '@/lib/design-system';
-import { 
-  formatCompactAmount, 
-  formatMemo, 
-  formatTimeAgo
-} from '@/lib/utils';
+import { cn, typography } from '@/lib/design-system';
+import { formatCompactAmount } from '@/lib/utils';
 import type { Payment, Member, PaymentId } from '@/lib/types';
 
 /**
- * 支払い項目表示コンポーネント
- * - 新デザインシステム統合
- * - 視認性とUXを最適化
- * - レスポンシブ対応・アクセシビリティ配慮
- */
-
-interface PaymentItemProps {
-  payment: Payment;
-  members: readonly Member[];
-  onEdit?: (payment: Payment) => void;
-  onRemove?: (paymentId: PaymentId) => void;
-  showActions?: boolean;
-  compact?: boolean;
-}
-
-export const PaymentItem: React.FC<PaymentItemProps> = ({
-  payment,
-  members,
-  onEdit,
-  onRemove,
-  showActions = true,
-  compact = false,
-}) => {
-  const payerName = members.find(m => m.id === payment.payerId)?.name || '不明';
-  const amountStyleClass = getAmountStyle(payment.amount);
-
-  if (compact) {
-    return (
-      <div className={getCardClasses('compact')}>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 text-base sm:text-lg">
-            <span className="font-medium text-gray-800 truncate">
-              {payerName}
-            </span>
-            <span className={cn(amountStyleClass, "whitespace-nowrap font-mono")}>
-              {formatCompactAmount(payment.amount)}
-            </span>
-          </div>
-          {payment.memo && (
-            <div className="text-sm sm:text-base text-gray-500 mt-1 truncate">
-              {formatMemo(payment.memo, 30)}
-            </div>
-          )}
-        </div>
-        {showActions && (
-          <div className="flex gap-1 ml-2">
-            {onEdit && (
-              <Button
-                variant="ghost"
-                onClick={() => onEdit(payment)}
-                className="text-sm px-3 py-2 h-auto"
-                aria-label={`${payerName}の支払いを編集`}
-              >
-                編集
-              </Button>
-            )}
-            {onRemove && (
-              <Button
-                variant="ghost"
-                onClick={() => onRemove(payment.id)}
-                className="text-sm text-red-500 px-3 py-2 h-auto hover:text-red-700"
-                aria-label={`${payerName}の支払いを削除`}
-              >
-                削除
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <div className={getCardClasses('normal')}>
-      <div className="flex items-start justify-between">
-        <div className="flex-1 min-w-0">
-          {/* メイン情報 */}
-          <div className="flex items-center gap-3 mb-2">
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-blue-600 font-semibold text-base">
-                  {payerName.charAt(0)}
-                </span>
-              </div>
-              <span className="font-medium text-gray-800 text-lg">
-                {payerName}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-gray-500 text-base">が支払い</span>
-              <span className={cn(amountStyleClass, "font-mono font-semibold text-lg")}>
-                {formatCompactAmount(payment.amount)}
-              </span>
-            </div>
-          </div>
-
-          {/* メモ情報 */}
-          {payment.memo && (
-            <div className="mb-2">
-              <div className="inline-flex items-center gap-1 px-3 py-2 bg-gray-100 rounded text-base text-gray-600">
-                <span className="text-sm">💬</span>
-                <span>{formatMemo(payment.memo, 40)}</span>
-              </div>
-            </div>
-          )}
-
-          {/* タイムスタンプ */}
-          <div className="text-sm text-gray-400">
-            {formatTimeAgo(payment.createdAt)}
-            {payment.updatedAt && payment.updatedAt !== payment.createdAt && (
-              <span className="ml-2">(編集済み)</span>
-            )}
-          </div>
-        </div>
-
-        {/* アクション */}
-        {showActions && (
-          <div className="flex flex-col gap-2 ml-4">
-            {onEdit && (
-              <Button
-                variant="outline"
-                onClick={() => onEdit(payment)}
-                className="text-sm px-4 py-2"
-                aria-label={`${payerName}の支払いを編集`}
-              >
-                編集
-              </Button>
-            )}
-            {onRemove && (
-              <Button
-                variant="ghost"
-                onClick={() => onRemove(payment.id)}
-                className="text-sm text-red-500 px-4 py-2 hover:text-red-700 hover:bg-red-50"
-                aria-label={`${payerName}の支払いを削除`}
-              >
-                削除
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-/**
  * 支払い一覧コンポーネント
- * - 統一されたスタイリング
- * - パフォーマンス最適化
+ * - シンプルで見やすいデザイン
+ * - スマホ最適化
  */
 interface PaymentListProps {
   payments: readonly Payment[];
   members: readonly Member[];
-  onEditPayment?: (payment: Payment) => void;
   onRemovePayment?: (paymentId: PaymentId) => void;
-  compact?: boolean;
   emptyMessage?: string;
 }
 
 export const PaymentList: React.FC<PaymentListProps> = ({
   payments,
   members,
-  onEditPayment,
   onRemovePayment,
-  compact = false,
   emptyMessage = '支払いが登録されていません',
 }) => {
   if (payments.length === 0) {
@@ -192,17 +34,56 @@ export const PaymentList: React.FC<PaymentListProps> = ({
   }
 
   return (
-    <div className="space-y-1" role="list" aria-label="支払い一覧">
-      {payments.map((payment) => (
-        <PaymentItem
-          key={payment.id}
-          payment={payment}
-          members={members}
-          onEdit={onEditPayment}
-          onRemove={onRemovePayment}
-          compact={compact}
-        />
-      ))}
+    <div className="space-y-3">
+      {payments.map((payment) => {
+        const member = members.find((m) => m.id === payment.payerId);
+        if (!member) return null;
+
+        return (
+          <div
+            key={payment.id}
+            className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-gray-200/30 shadow-sm hover:bg-white/80 hover:shadow-md transition-all duration-200"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-medium text-base">
+                  {member.name.charAt(0)}
+                </div>
+                <div>
+                  <p className={cn(typography.body.base, 'font-medium text-gray-800')}>
+                    {member.name}
+                  </p>
+                  {payment.memo && (
+                    <p className={cn(typography.body.small, 'text-gray-500')}>
+                      {payment.memo}
+                    </p>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <span className={cn(typography.heading.h4, 'font-semibold text-gray-800')}>
+                  {formatCompactAmount(payment.amount)}
+                </span>
+                
+                {onRemovePayment && (
+                  <Button
+                    onClick={() => onRemovePayment?.(payment.id)}
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50 h-10 w-10 p-0"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    <span className="sr-only">削除</span>
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }; 
