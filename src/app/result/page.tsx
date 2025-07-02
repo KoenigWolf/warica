@@ -9,7 +9,6 @@ import { ActionButtons } from "@/components/ActionButtons";
 import { PaymentList as EnhancedPaymentList } from "@/components/shared/PaymentItem";
 import { useResultLogic, useCommonNavigation, useButtonState } from "../../lib/shared-logic";
 import type { Payment } from "../../lib/types";
-import { ROUTES } from "../../lib/routes";
 
 /**
  * 割り勘結果ページ

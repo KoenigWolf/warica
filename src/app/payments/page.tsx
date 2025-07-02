@@ -12,7 +12,6 @@ import { SectionTitle } from "@/components/SectionTitle";
 import { ActionButtons } from "@/components/ActionButtons";
 import { PaymentList } from "@/components/shared/PaymentItem";
 import { usePaymentFormLogic, useCommonNavigation, useButtonState } from "../../lib/shared-logic";
-import { ROUTES } from "../../lib/routes";
 
 /**
  * 割り勘 支払い入力ページ（支払い対象のメンバー全員/複数も選択可）

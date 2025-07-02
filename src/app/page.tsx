@@ -9,7 +9,6 @@ import { ActionButtons } from "@/components/ActionButtons";
 import { useWarikanStore } from "./useWarikanStore";
 import { useSetupLogic, useCommonNavigation, useErrorDisplay, useButtonState } from "../lib/shared-logic";
 import type { MemberId } from "../lib/types";
-import { ROUTES } from "../lib/routes";
 
 /**
  * アプリ紹介セクションコンポーネント
