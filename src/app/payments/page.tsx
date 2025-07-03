@@ -15,11 +15,11 @@ import { cn, typography, colors, spacing } from "@/lib/design-system";
 import type { MemberId } from "@/lib/types";
 
 /**
- * ハイブランド 支払いページ v4.0
+ * ハイブランド 支払いページ v5.0
  * - モノトーンデザイン
  * - ミニマルインターフェース
- * - 支払い先メンバー選定機能
- * - 高級感のあるレイアウト
+ * - 支払い先メンバー選定機能（常時表示）
+ * - シンプルで使いやすいUX
  */
 const PaymentsPage: React.FC = () => {
   const {
@@ -37,7 +37,6 @@ const PaymentsPage: React.FC = () => {
   const [amount, setAmount] = useState("");
   const [memo, setMemo] = useState("");
   const [selectedPayees, setSelectedPayees] = useState<string[]>([]);
-  const [isSplitMode, setIsSplitMode] = useState(false);
 
   // メンバーロード後に初期payerIdを設定
   React.useEffect(() => {
@@ -62,7 +61,7 @@ const PaymentsPage: React.FC = () => {
       return;
     }
 
-    if (isSplitMode && selectedPayees.length > 0) {
+    if (selectedPayees.length > 0) {
       // 割り勘モード：選択されたメンバーで分割
       const totalPayees = selectedPayees.length;
       const baseAmount = Math.floor(validAmount / totalPayees);
@@ -84,7 +83,7 @@ const PaymentsPage: React.FC = () => {
 
     setAmount("");
     setMemo("");
-  }, [payerId, amount, memo, isSplitMode, selectedPayees, members, addPayment]);
+  }, [payerId, amount, memo, selectedPayees, members, addPayment]);
 
   // 結果ページへの進行
   const handleGoToResults = useCallback(() => {
@@ -113,7 +112,7 @@ const PaymentsPage: React.FC = () => {
     amount &&
     !isNaN(Number(amount)) &&
     Number(amount) > 0 &&
-    (!isSplitMode || selectedPayees.length > 0)
+    selectedPayees.length > 0
   );
 
   // 結果ページに進行可能かチェック
@@ -244,22 +243,8 @@ const PaymentsPage: React.FC = () => {
             />
           </div>
 
-          {/* 割り勘モード切り替え */}
-          <div className={cn(spacing.tight, 'sm:col-span-2')}>
-            <div className="flex items-center gap-3">
-              <Checkbox
-                id="split-mode"
-                checked={isSplitMode}
-                onCheckedChange={(checked) => setIsSplitMode(checked === true)}
-              />
-              <Label htmlFor="split-mode" className={cn(typography.body.base, 'font-light cursor-pointer')}>
-                Split payment among selected members
-              </Label>
-            </div>
-          </div>
-
-          {/* 支払い先メンバー選択（割り勘モード時のみ表示） */}
-          {isSplitMode && availablePayees.length > 0 && (
+          {/* 支払い先メンバー選択（常時表示） */}
+          {availablePayees.length > 0 && (
             <div className={cn(spacing.tight, 'sm:col-span-2')}>
               <div className="flex items-center justify-between mb-4">
                 <Label className={cn(typography.label)}>
@@ -327,7 +312,7 @@ const PaymentsPage: React.FC = () => {
               size="lg"
               className="w-full h-12 font-light tracking-wide"
             >
-              {isSplitMode ? 'Add Split Payment' : 'Add Payment'}
+              Add Split Payment
             </Button>
           </div>
         </div>
