@@ -68,7 +68,6 @@ const ResultPage: React.FC = () => {
             colors.text.secondary,
             'leading-relaxed mb-8'
           )}>
-            Bill splitting calculation for {eventName} is complete.
           </p>
           
           <div className="grid grid-cols-3 gap-4">
