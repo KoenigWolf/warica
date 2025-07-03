@@ -18,7 +18,7 @@ import type { PaymentId } from "../../lib/types";
  */
 const ResultPage: React.FC = () => {
   const {
-    state: { eventName, members, payments },
+    state: { members, payments },
     isLoaded,
     removePayment,
     resetAll,
